@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-dark mb-1" style="font-size: 1.75rem;">Add-On Revenue</h1>
+            <p class="text-muted mb-0">Track purchases of extra ride quotas and boost packages.</p>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+        <div class="card-body p-0">
+            <div class="table-responsive p-3">
+                <table class="table table-hover align-middle custom-table">
+                    <thead>
+                        <tr>
+                            <th class="border-0 text-muted small text-uppercase fw-bold ps-4">Driver</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Package</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Amount</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Status</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-bold text-dark">{{ payment.driver.username }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-medium">{{ payment.plan.name }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">₹{{ payment.amount }}</span>
+                            </td>
+                            <td>
+                                {% if payment.status == 'completed' %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold small">COMPLETED</span>
+                                {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill fw-bold small text-uppercase">{{ payment.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ payment.created_at|date:"M d, Y" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <p class="text-muted">No add-on purchases recorded yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

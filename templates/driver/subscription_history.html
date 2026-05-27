@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'driver_dashboard' %}">
+            <i class="fas fa-car-side me-2"></i>UGo Driver
+        </a>
+    </div>
+</nav>
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="fas fa-history me-2 text-dark"></i>Subscription History</h2>
+        <a href="{% url 'driver_subscription_plans' %}" class="btn btn-outline-dark">
+            <i class="fas fa-plus me-1"></i>New Subscription
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm mb-5">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Plan Name</th>
+                            <th>Amount</th>
+                            <th>Payment Date</th>
+                            <th>Duration Period</th>
+                            <th>Status</th>
+                            <th class="pe-4">Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-bold text-primary">{{ item.plan.name }}</span>
+                                <div class="small text-muted text-uppercase">{{ item.plan.duration_type }}</div>
+                            </td>
+                            <td>₹{{ item.amount }}</td>
+                            <td>{{ item.created_at|date:"d M Y, h:i A" }}</td>
+                            <td>
+                                {% if item.start_date_calc and item.end_date_calc %}
+                                    <span class="small fw-medium">{{ item.start_date_calc|date:"d M Y" }}</span>
+                                    <i class="fas fa-arrow-right mx-1 text-muted small"></i>
+                                    <span class="small fw-medium">{{ item.end_date_calc|date:"d M Y" }}</span>
+                                {% else %}
+                                    <span class="text-muted small">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-soft text-primary border border-primary px-3">
+                                    <i class="fas fa-check-circle me-1"></i>Success
+                                </span>
+                            </td>
+                            <td class="small text-muted pe-4">
+                                <div><i class="fas fa-tag me-1"></i>#{{ item.razorpay_payment_id|default:item.id }}</div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-receipt fa-3x mb-3 d-block opacity-25"></i>
+                                    <h5>No subscription history found</h5>
+                                    <p>Your future subscription records will appear here.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add-On History -->
+    <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
+        <h2 class="fw-bold text-indigo"><i class="fas fa-plus-circle me-2"></i>Add-On History</h2>
+        <a href="{% url 'driver_available_addons' %}" class="btn btn-outline-indigo">
+            <i class="fas fa-bolt me-1 text-warning"></i>Get More KM
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-indigo text-white">
+                        <tr>
+                            <th class="ps-4 py-3">Add-On Name</th>
+                            <th class="py-3">Amount</th>
+                            <th class="py-3">Purchase Date</th>
+                            <th class="py-3">Kilometre Limit</th>
+                            <th class="py-3 text-center">Status</th>
+                            <th class="pe-4 py-3 text-end">Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for addon in addon_history %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-bold text-indigo">{{ addon.plan.name }}</span>
+                                <div class="small text-muted">{{ addon.plan.description|truncatechars:30 }}</div>
+                            </td>
+                            <td><strong class="text-indigo">₹{{ addon.amount }}</strong></td>
+                            <td>{{ addon.created_at|date:"d M Y, h:i A" }}</td>
+                            <td>
+                                <span class="badge bg-soft-primary text-dark px-3">{{ addon.plan.km_limit }} KM</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-soft-success text-success border border-success px-3">
+                                    <i class="fas fa-check-circle me-1"></i>SUCCESS
+                                </span>
+                            </td>
+                            <td class="small text-muted pe-4 text-end">
+                                <div><i class="fas fa-tag me-1"></i>#{{ addon.razorpay_payment_id|default:addon.id }}</div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-bolt fa-3x mb-3 d-block opacity-25"></i>
+                                    <h5>No add-on history found</h5>
+                                    <p>Buy boosters when your daily limit is hit!</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{% url 'driver_dashboard' %}" class="btn btn-light text-primary fw-bold">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<style>
+    .bg-primary-soft {
+        background-color: rgba(37, 99, 235, 0.1);
+    }
+    .bg-indigo { background: #000000; }
+    .text-indigo { color: #000000; }
+    .bg-soft-primary { background: #e5e7eb; }
+    .bg-soft-success { background: #dbeafe; }
+    .btn-outline-indigo { border-color: #000000; color: #000000; }
+    .btn-outline-indigo:hover { background: #000000; color: white; }
+</style>
+{% endblock %}

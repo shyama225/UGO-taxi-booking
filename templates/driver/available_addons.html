@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="fas fa-plus-circle me-2 text-primary"></i>Available Add-Ons</h2>
+            <p class="text-muted small">Purchase extra ride access to continue working after reaching your daily limit.</p>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-soft-warning text-warning p-2 border border-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i> Add-ons trigger when limit is hit
+            </span>
+        </div>
+    </div>
+
+    <!-- Add-On Plans Cards -->
+    <div class="row g-4">
+        {% for addon in addons %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 addon-card overflow-hidden">
+                <div class="card-header border-0 bg-primary p-4 text-white text-center position-relative">
+                    <div class="position-relative z-index-1">
+                        <h5 class="fw-bold mb-0 text-uppercase tracking-wider">{{ addon.name }}</h5>
+                        <div class="display-5 fw-bold mt-2">₹{{ addon.price }}</div>
+                    </div>
+                    <div class="card-blob"></div>
+                </div>
+                <div class="card-body p-4 d-flex flex-column bg-white">
+                    <ul class="list-unstyled flex-grow-1">
+                        {% if addon.km_limit > 0 %}
+                        <li class="mb-3 d-flex align-items-center">
+                            <div class="icon-box-sm me-3" style="background:#ede9fe; color:#4f46e5;">
+                                <i class="fas fa-road"></i>
+                            </div>
+                            <span>+{{ addon.km_limit }} Extra km</span>
+                        </li>
+                        {% endif %}
+                        <li class="mb-3 d-flex align-items-center">
+                            <div class="icon-box-sm bg-soft-primary text-primary me-3">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <span>Valid for {{ addon.validity_days }} Day(s)</span>
+                        </li>
+                        {% if addon.description %}
+                        <li class="mb-3 d-flex align-items-center">
+                            <div class="icon-box-sm bg-soft-info text-info me-3">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <span class="text-muted small">{{ addon.description }}</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    <a href="{% url 'driver_purchase_addon' addon.id %}" class="btn btn-primary w-full py-3 fw-bold rounded-3 mt-auto">
+                        <i class="fas fa-shopping-cart me-2"></i>Get This Add-On
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="icon-box-lg bg-soft-secondary text-secondary mx-auto mb-3">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <h3>No Add-On Plans Currently</h3>
+            <p class="text-muted">Stay tuned for amazing daily boosters coming your way.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .bg-primary { background-color: #2563eb; }
+    .btn-primary { background-color: #2563eb; color: white; border: none; transition: 0.3s; }
+    .btn-primary:hover { background-color: #1d4ed8; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+    
+    .addon-card { transition: 0.3s; }
+    .addon-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; }
+    
+    .card-blob {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        top: -30px;
+        right: -30px;
+        z-index: 0;
+    }
+    
+    .icon-box-sm { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 0.8rem; }
+    .icon-box-lg { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.5rem; }
+    
+    .bg-soft-success { background: #dbeafe; }
+    .bg-soft-primary { background: #dbeafe; }
+    .bg-soft-info { background: #e0f2fe; }
+    .bg-soft-warning { background: #fef3c7; }
+    .bg-soft-secondary { background: #f1f5f9; }
+</style>
+{% endblock %}

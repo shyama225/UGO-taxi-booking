@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Live Ride Requests</h1>
+            <p class="text-muted mb-0">Pending requests awaiting driver assignment in real-time.</p>
+        </div>
+        <div class="p-3 bg-white shadow-sm border rounded-circle pulse-blue">
+            <i class="fas fa-satellite-dish text-primary"></i>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+        <div class="card-body p-0">
+            <div class="table-responsive p-3">
+                <table class="table table-hover align-middle custom-table">
+                    <thead>
+                        <tr>
+                            <th class="border-0 text-muted small text-uppercase fw-bold ps-4">Rider</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Route Map</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Metrics</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Est. Revenue</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Live Status</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in rides %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if ride.rider.profile_pic %}
+                                    <img src="{{ ride.rider.profile_pic.url }}" class="rounded-circle shadow-sm" style="width: 42px; height: 42px; object-fit: cover; border: 2px solid #fff;">
+                                    {% else %}
+                                    <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px; border: 2px solid #fff;">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark">{{ ride.rider.username }}</span>
+                                        <span class="text-muted small">New Request</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="small text-truncate" style="max-width: 180px;"><i class="fas fa-circle text-primary me-1 small"></i>{{ ride.pickup_location }}</span>
+                                    <span class="small text-muted text-truncate" style="max-width: 180px;"><i class="fas fa-location-arrow text-danger me-1 small"></i>{{ ride.drop_address }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="fw-bold text-dark small">{{ ride.distance_km|default:"-" }}</span>
+                                    <span class="text-muted small">km</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-slate-800">₹{{ ride.estimated_fare|default:"0.00" }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="pulse-dot"></span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold small uppercase">{{ ride.status }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <button class="btn btn-icon btn-light rounded-circle shadow-sm"><i class="fas fa-bolt text-warning small"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="opacity-25 mb-3"><i class="fas fa-bell-slash fa-3x"></i></div>
+                                <p class="text-muted fw-medium">No pending requests at the moment</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.custom-table tr { transition: all 0.2s; }
+.custom-table tbody tr:hover { background-color: #f8fafc; }
+.btn-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; }
+.pulse-dot { width: 8px; height: 8px; background: #2563eb; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
+.pulse-blue { animation: pulse-blue 2s infinite; }
+@keyframes pulse-blue { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); } }
+</style>
+{% endblock %}

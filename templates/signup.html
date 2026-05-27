@@ -1,0 +1,754 @@
+{% extends 'base.html' %}
+
+{% block public_content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — UGo Ride</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            min-height: 100vh;
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        /* ── Card ── */
+        .signup-card {
+            width: 100%;
+            max-width: 960px;
+            background: #ffffff;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.45);
+            display: flex;
+        }
+
+        /* ── Left panel ── */
+        .left-panel {
+            flex: 0 0 42%;
+            background: linear-gradient(160deg, #1e3a8a 0%, #2563eb 55%, #0ea5e9 100%);
+            padding: 56px 44px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 260px;
+            height: 260px;
+            background: rgba(255, 255, 255, 0.07);
+            border-radius: 50%;
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: -60px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            backdrop-filter: blur(8px);
+        }
+
+        .panel-body {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-body h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+        }
+
+        .panel-body p {
+            opacity: 0.8;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            list-style: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 14px;
+        }
+
+        .feature-list li .check {
+            width: 26px;
+            height: 26px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.7rem;
+        }
+
+        /* ── Right panel / form ── */
+        .right-panel {
+            flex: 1;
+            padding: 52px 48px;
+            background: #fff;
+            overflow-y: auto;
+        }
+
+        .form-header {
+            margin-bottom: 36px;
+        }
+
+        .form-header h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .form-header p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 6px;
+        }
+
+        /* Error alert */
+        .alert-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid #ef4444;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #b91c1c;
+            font-size: 0.88rem;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ── Form labels & inputs ── */
+        .field-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #374151;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.93rem;
+            font-family: inherit;
+            color: #0f172a;
+            background: #f8fafc;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            outline: none;
+            appearance: none;
+        }
+
+        .form-input:focus {
+            border-color: #2563eb;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Role dropdown arrow */
+        .select-wrap::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.75rem;
+            pointer-events: none;
+        }
+
+        /* Role badge preview */
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .role-badge.user {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .role-badge.driver {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        /* password toggle */
+        .pass-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.9rem;
+            background: none;
+            border: none;
+            padding: 0;
+            z-index: 2;
+        }
+
+        .pass-field {
+            padding-right: 42px !important;
+        }
+
+        /* Strength bar */
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 6px;
+            background: #e2e8f0;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s, background 0.3s;
+            width: 0;
+        }
+
+        /* Submit */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #1e40af, #1d4ed8);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Terms */
+        .terms-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .terms-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            accent-color: #2563eb;
+            margin-top: 2px;
+        }
+
+        .terms-row label {
+            font-size: 0.84rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .terms-row a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .divider {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin: 20px 0;
+        }
+
+        .sign-in-link {
+            text-align: center;
+            font-size: 0.88rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .sign-in-link a {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* Document Upload Cards */
+        .doc-upload-card {
+            border: 2px dashed #e2e8f0;
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 16/10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .doc-upload-card:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .doc-upload-card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            opacity: 0.6;
+        }
+
+        .doc-upload-card.has-file img {
+            opacity: 1;
+        }
+
+        .upload-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(37, 99, 235, 0.9);
+            color: white;
+            padding: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+
+        .doc-upload-card:hover .upload-overlay {
+            transform: translateY(0);
+        }
+
+        .doc-placeholder-icon {
+            font-size: 2.5rem;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .signup-card {
+                flex-direction: column;
+                border-radius: 20px;
+            }
+
+            .left-panel {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 36px 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="signup-card">
+
+        <!-- ── Left panel ── -->
+        <div class="left-panel">
+            <div class="brand">
+                <div class="brand-icon"><i class="fas fa-car-side"></i></div>
+                UGo Ride
+            </div>
+
+            <div class="panel-body">
+                <h1>Your ride,<br>your way.</h1>
+                <p>Join thousands of users and drivers on UGo — reliable, fast, and affordable rides.</p>
+            </div>
+
+            <ul class="feature-list">
+                <li>
+                    <div class="check"><i class="fas fa-check"></i></div>
+                    <span>Instant ride matching</span>
+                </li>
+                <li>
+                    <div class="check"><i class="fas fa-check"></i></div>
+                    <span>Real-time GPS tracking</span>
+                </li>
+                <li>
+                    <div class="check"><i class="fas fa-check"></i></div>
+                    <span>Secure Razorpay payments</span>
+                </li>
+                <li>
+                    <div class="check"><i class="fas fa-check"></i></div>
+                    <span>Rate & review every trip</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ── Right panel ── -->
+        <div class="right-panel">
+            <div class="form-header">
+                <h2>Create your account</h2>
+                <p>Fill in the details below to get started</p>
+            </div>
+
+            {% if error %}
+            <div class="alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" id="signupForm" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+
+                <!-- Role -->
+                <div class="mb-4">
+                    <label class="field-label" for="role-select">I want to register as</label>
+                    <div class="field-wrap select-wrap">
+                        <i class="field-icon fas fa-id-badge"></i>
+                        <select class="form-input" id="role-select" name="role" required
+                            onchange="updateRoleBadge(this)">
+                            <option value="" disabled selected>Select your role…</option>
+                            <option value="user">🚗 Rider — I want to book rides</option>
+                            <option value="driver">🚕 Driver — I want to offer rides</option>
+                        </select>
+                    </div>
+                    <div id="role-badge-wrap"></div>
+                </div>
+
+                <!-- Driver Specific Docs -->
+                <div id="driver-docs-section" style="display: none;">
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            <label class="field-label">Driving License</label>
+                            <div class="doc-upload-card" id="license-card-ui" onclick="document.getElementById('id_license_card').click()">
+                                <div id="license-placeholder">
+                                    <i class="fas fa-address-card doc-placeholder-icon"></i>
+                                    <p style="font-size: 0.7rem; color: #64748b; margin: 0;">Click to upload License</p>
+                                </div>
+                                <img id="license-preview" style="display: none;">
+                                <div class="upload-overlay">
+                                    <i class="fas fa-upload"></i>
+                                    <span>Upload Image</span>
+                                </div>
+                                <input type="file" id="id_license_card" name="license_card" accept="image/*" style="display: none;" onchange="previewImage(this, 'license-preview', 'license-placeholder', 'license-card-ui')">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="field-label">RC Book</label>
+                            <div class="doc-upload-card" id="rc-book-ui" onclick="document.getElementById('id_rc_book').click()">
+                                <div id="rc-placeholder">
+                                    <i class="fas fa-file-invoice doc-placeholder-icon"></i>
+                                    <p style="font-size: 0.7rem; color: #64748b; margin: 0;">Click to upload RC Book</p>
+                                </div>
+                                <img id="rc-preview" style="display: none;">
+                                <div class="upload-overlay">
+                                    <i class="fas fa-upload"></i>
+                                    <span>Upload RC Book</span>
+                                </div>
+                                <input type="file" id="id_rc_book" name="rc_book" accept="image/*" style="display: none;" onchange="previewImage(this, 'rc-preview', 'rc-placeholder', 'rc-book-ui')">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- UPI ID Field -->
+                    <div class="mb-4">
+                        <label class="field-label" for="id_upi_id">UPI ID (for payments)</label>
+                        <div class="field-wrap">
+                            <i class="field-icon fas fa-mobile-screen-button"></i>
+                            <input type="text" id="id_upi_id" class="form-input" name="upi_id"
+                                placeholder="yourname@upi" required>
+                        </div>
+                        <p style="font-size: 0.75rem; color: #64748b; margin-top: 6px;">
+                            <i class="fas fa-info-circle me-1"></i>Enter your UPI ID to receive payments safely.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Name row -->
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-6">
+                        <label class="field-label" for="id_username">Username</label>
+                        <div class="field-wrap">
+                            <i class="field-icon fas fa-at"></i>
+                            <input type="text" id="id_username" class="form-input" name="username"
+                                placeholder="yourname123" autocomplete="username" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="field-label" for="id_email">Email</label>
+                        <div class="field-wrap">
+                            <i class="field-icon fas fa-envelope"></i>
+                            <input type="email" id="id_email" class="form-input" name="email"
+                                placeholder="you@example.com" autocomplete="email" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="mb-3">
+                    <label class="field-label" for="id_phone">Phone Number</label>
+                    <div class="field-wrap">
+                        <i class="field-icon fas fa-phone"></i>
+                        <input type="tel" id="id_phone" class="form-input" name="phone" placeholder="+91 98765 43210"
+                            autocomplete="tel" required>
+                    </div>
+                </div>
+
+                <!-- Password row -->
+                <div class="row g-3 mb-2">
+                    <div class="col-sm-6">
+                        <label class="field-label" for="id_password">Password</label>
+                        <div class="field-wrap">
+                            <i class="field-icon fas fa-lock"></i>
+                            <input type="password" id="id_password" class="form-input pass-field" name="password"
+                                placeholder="Min. 8 characters" autocomplete="new-password" required
+                                oninput="checkStrength(this.value)">
+                            <button type="button" class="pass-toggle" onclick="togglePass('id_password', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strength-fill"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="field-label" for="id_confirm">Confirm Password</label>
+                        <div class="field-wrap">
+                            <i class="field-icon fas fa-lock"></i>
+                            <input type="password" id="id_confirm" class="form-input pass-field" name="confirm_password"
+                                placeholder="Re-enter password" autocomplete="new-password" required>
+                            <button type="button" class="pass-toggle" onclick="togglePass('id_confirm', this)">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms -->
+                <div class="terms-row mt-4">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="divider">── or ──</div>
+            <div class="sign-in-link">
+                Already have an account? <a href="{% url 'login' %}">Sign in</a>
+            </div>
+            <div style="text-align:center; margin-top: 16px;">
+                <a href="{% url 'home' %}" style="font-size:0.83rem; color:#94a3b8; text-decoration:none;">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Role badge preview
+        function updateRoleBadge(select) {
+            const wrap = document.getElementById('role-badge-wrap');
+            const val = select.value;
+            if (val === 'user') {
+                wrap.innerHTML = '<span class="role-badge user"><i class="fas fa-user"></i> Rider — book rides anytime</span>';
+                document.getElementById('driver-docs-section').style.display = 'none';
+            } else if (val === 'driver') {
+                wrap.innerHTML = '<span class="role-badge driver"><i class="fas fa-car"></i> Driver — earn by offering rides</span>';
+                document.getElementById('driver-docs-section').style.display = 'block';
+            } else {
+                wrap.innerHTML = '';
+                document.getElementById('driver-docs-section').style.display = 'none';
+            }
+        }
+
+        // Image preview function
+        function previewImage(input, previewId, placeholderId, cardId) {
+            const preview = document.getElementById(previewId);
+            const placeholder = document.getElementById(placeholderId);
+            const card = document.getElementById(cardId);
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    placeholder.style.display = 'none';
+                    card.classList.add('has-file');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Show badge on page load if role pre-selected
+        const sel = document.getElementById('role-select');
+        if (sel.value) updateRoleBadge(sel);
+
+        // Password visibility toggle
+        function togglePass(fieldId, btn) {
+            const input = document.getElementById(fieldId);
+            const isText = input.type === 'text';
+            input.type = isText ? 'password' : 'text';
+            btn.querySelector('i').className = isText ? 'fas fa-eye' : 'fas fa-eye-slash';
+        }
+
+        // Password strength indicator
+        function checkStrength(val) {
+            const fill = document.getElementById('strength-fill');
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            const widths = ['0%', '30%', '55%', '80%', '100%'];
+            const colours = ['#e2e8f0', '#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+            fill.style.width = widths[score];
+            fill.style.background = colours[score];
+        }
+
+        // Validate passwords match on submit
+        document.getElementById('signupForm').addEventListener('submit', function (e) {
+            const pwd = document.getElementById('id_password').value;
+            const conf = document.getElementById('id_confirm').value;
+            const role = document.getElementById('role-select').value;
+            if (!role) {
+                e.preventDefault();
+                alert('Please select a role (Rider or Driver).');
+                document.getElementById('role-select').focus();
+                return;
+            }
+            if (pwd.length < 8) {
+                e.preventDefault();
+                alert('password must be minimum 8 characters');
+                document.getElementById('id_password').focus();
+                return;
+            }
+            if (pwd !== conf) {
+                e.preventDefault();
+                alert('Passwords do not match. Please try again.');
+                document.getElementById('id_confirm').focus();
+            }
+        });
+    </script>
+</body>
+
+</html>
+{% endblock %}

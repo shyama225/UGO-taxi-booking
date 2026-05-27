@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563EB, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo</a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="fas fa-users me-2"></i>Select a Driver</h2>
+        <a href="{% url 'user_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
+    </div>
+    
+    <div class="alert alert-info mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Ride Details:</strong> {{ ride.pickup_location }} → {{ ride.drop_address }}
+        <span class="mx-3">|</span>
+        <strong>Est. Fare:</strong> ₹{{ ride.estimated_fare|default:"--" }}
+    </div>
+    
+    <div class="row g-4">
+        {% for driver in drivers %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        {% if driver.profile_pic %}
+                        <img src="{{ driver.profile_pic.url }}" class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 60px; height: 60px;">
+                            <i class="fas fa-user text-white fa-2x"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="fw-bold mb-1">{{ driver.username }}</h5>
+                            <div class="rating-stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star-half-alt"></i>
+                                <span class="text-muted ms-1">4.8</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if driver.taxi %}
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-car text-primary me-2"></i>
+                            <span>{{ driver.taxi.model_name }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mt-2">
+                            <i class="fas fa-tag text-secondary me-2"></i>
+                            <span class="badge bg-secondary">{{ driver.taxi.plate_number }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mt-2">
+                            <i class="fas fa-palette me-2"></i>
+                            <span class="color-dot" style="display: inline-block; width: 16px; height: 16px; border-radius: 50%; background: {{ driver.taxi.color }}; border: 1px solid #ddd;"></span>
+                            <span class="ms-2">{{ driver.taxi.color }} {{ driver.taxi.get_taxi_type_display }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'user_select_driver' ride.id driver.id %}" class="btn btn-success flex-grow-1">
+                            <i class="fas fa-check me-1"></i>Select Driver
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-car-side fa-3x text-muted mb-3"></i>
+                <h5 class="fw-bold">No Drivers Available</h5>
+                <p class="text-muted">No drivers are currently available at your location. Please try again later.</p>
+                <a href="{% url 'user_dashboard' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="mb-5">
+        <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Account Settings</h1>
+        <p class="text-muted mb-0">Manage your administrative profile and security preferences.</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm overflow-hidden text-center" style="border-radius: 24px;">
+                <div class="card-body p-5">
+                    <div class="position-relative d-inline-block mb-4">
+                        {% if request.user.profile_pic %}
+                        <img src="{{ request.user.profile_pic.url }}" alt="Profile Picture" class="rounded-circle shadow-sm" style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #fff;">
+                        {% else %}
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 150px; height: 150px; border: 5px solid #fff;">
+                            <i class="fas fa-user-shield fa-4x text-primary"></i>
+                        </div>
+                        {% endif %}
+                        <span class="position-absolute bottom-0 end-0 bg-primary border border-white border-3 rounded-circle" style="width: 24px; height: 24px;"></span>
+                    </div>
+                    
+                    <h4 class="fw-bold text-dark mb-1">{{ request.user.username }}</h4>
+                    <span class="badge bg-indigo-500 bg-opacity-10 text-indigo-600 px-3 py-2 rounded-pill fw-bold small mb-3">SYSTEM ADMINISTRATOR</span>
+                    
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <div class="p-2 px-3 bg-light rounded-3">
+                            <i class="fas fa-envelope text-muted small me-1"></i>
+                            <span class="small fw-medium">{{ request.user.email|default:"No email" }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light border-0 p-4">
+                    <p class="small text-muted mb-0">Account created on <br><strong>{{ request.user.date_joined|date:"F d, Y" }}</strong></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+                <div class="card-header bg-transparent border-0 p-4 pb-0">
+                    <h5 class="fw-bold mb-0">General Information</h5>
+                </div>
+                <div class="card-body p-4 pt-4">
+                    <form method="POST" action="{% url 'admin_update_profile' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-envelope text-muted"></i></span>
+                                    <input type="email" class="form-control bg-light border-0" name="email" value="{{ request.user.email }}" placeholder="admin@ugo.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-phone text-muted"></i></span>
+                                    <input type="tel" class="form-control bg-light border-0" name="phone" value="{{ request.user.phone_number }}" placeholder="+91 00000 00000">
+                                </div>
+                            </div>
+                            <div class="col-12 mb-4">
+                                <label class="form-label small fw-bold text-uppercase text-muted">Update Profile Image</label>
+                                <input type="file" class="form-control bg-light border-0" name="profile_pic" accept="image/*">
+                                <div class="form-text small opacity-50">Upload a square image for best results. Supported formats: JPG, PNG.</div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4 opacity-10">
+                        
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="reset" class="btn btn-light px-4 rounded-3 fw-bold">Cancel</button>
+                            <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold shadow-sm">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 border border-danger border-opacity-10 rounded-4 bg-danger bg-opacity-10 d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="fw-bold text-danger mb-1">Danger Zone</h6>
+                    <p class="text-danger small mb-0 opacity-75">Once you logout, you will need your credentials to re-access the panel.</p>
+                </div>
+                <a href="{% url 'logout' %}" class="btn btn-danger btn-sm px-4 rounded-3 fw-bold">Sign Out</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

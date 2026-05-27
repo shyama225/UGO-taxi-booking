@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Add-On plan Expansion</h1>
+            <p class="text-muted mb-0">Manage temporary ride quotas for drivers who reach their daily limits.</p>
+        </div>
+        <a href="{% url 'admin_add_addon' %}" class="btn btn-primary rounded-3 shadow-sm px-4 fw-bold">
+            <i class="fas fa-plus me-2"></i>New Add-On
+        </a>
+    </div>
+    
+    <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+        <div class="card-body p-0">
+            <div class="table-responsive p-3">
+                <table class="table table-hover align-middle custom-table">
+                    <thead>
+                        <tr>
+                            <th class="border-0 text-muted small text-uppercase fw-bold ps-4">Add-On Package</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Pricing</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Benefit</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Validity</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Status</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for addon in addons %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-indigo-500 bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                                        <i class="fas fa-box-open text-indigo-600"></i>
+                                    </div>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark">{{ addon.name }}</span>
+                                        <span class="text-muted small">Code: #ADD-{{ addon.id|stringformat:"03d" }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">₹{{ addon.price }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    {% if addon.km_limit > 0 %}
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-road text-indigo small" style="color:#4f46e5;"></i>
+                                        <span class="fw-medium text-dark small">+{{ addon.km_limit }} km</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if addon.ride_limit == 0 and addon.km_limit == 0 %}
+                                    <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis border px-3 py-2 rounded-2 fw-bold small">
+                                    {{ addon.validity_days|default:0 }} Day(s)
+                                </span>
+                            </td>
+                            <td>
+                                {% if addon.is_active %}
+                                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold small">ACTIVE</span>
+                                {% else %}
+                                <span class="badge bg-light text-muted px-3 py-2 rounded-pill fw-bold small border">DRAFT</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'admin_edit_addon' addon.id %}" class="btn btn-icon btn-light rounded-circle shadow-sm"><i class="fas fa-edit text-primary small"></i></a>
+                                    <a href="{% url 'admin_delete_addon' addon.id %}" class="btn btn-icon btn-light rounded-circle shadow-sm text-danger" onclick="return confirm('Retire this add-on plan?');">
+                                        <i class="fas fa-trash-alt small"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="opacity-25 mb-3"><i class="fas fa-puzzle-piece fa-4x"></i></div>
+                                <p class="text-muted">No boost packages available for sale.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.custom-table tr { transition: all 0.2s; }
+.custom-table tbody tr:hover { background-color: #f8fafc; }
+.btn-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; }
+</style>
+{% endblock %}

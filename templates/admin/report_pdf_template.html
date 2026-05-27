@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page {
+            size: a4 portrait;
+            @frame content_frame {
+                left: 50pt; width: 495pt; top: 50pt; height: 742pt;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #10B981;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+        }
+        .title {
+            font-size: 24px;
+            color: #064E3B;
+            margin-bottom: 5px;
+        }
+        .meta {
+            font-size: 10px;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th {
+            background-color: #f3f4f6;
+            color: #374151;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 10px;
+        }
+        td {
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            font-size: 9px;
+            word-wrap: break-word;
+        }
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        .footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 8px;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">UGo - {{ title }}</div>
+        <div class="meta">Generated at: {{ generated_at|date:"M d, Y H:i" }}</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                {% for header in headers %}
+                <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr>
+                {% for item in row %}
+                <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        &copy; {{ generated_at|date:"Y" }} UGo Ride Sharing Platform. All rights reserved.
+    </div>
+</body>
+</html>

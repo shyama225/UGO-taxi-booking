@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+
+{% block public_content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UGo - Your Ride, Your Way</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563EB;
+            --secondary-color: #10B981;
+            --accent-color: #F59E0B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-main);
+            overflow-x: hidden;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(29, 78, 216, 0.95)),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,138.7C672,128,768,160,864,186.7C960,213,1056,235,1152,218.7C1248,203,1344,149,1392,122.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+        
+        .hero-content {
+            padding: 60px 0;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .btn-hero {
+            padding: 16px 48px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+        
+        .btn-light {
+            background: white;
+            color: var(--primary-color);
+            border: none;
+        }
+        
+        .btn-light:hover {
+            background: #f8fafc;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .stats-section {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 80px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--secondary-color), #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            padding: 100px 0;
+            color: white;
+        }
+        
+        .navbar-custom {
+            background: transparent;
+            padding: 20px 0;
+            position: absolute;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white !important;
+        }
+        
+        .nav-link-custom {
+            color: white !important;
+            font-weight: 500;
+            padding: 10px 20px !important;
+        }
+        
+        .driver-illustration {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-car-side me-2"></i>UGo
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-link-custom" href="#how-it-works">How It Works</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-light btn-hero ms-3" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light btn-hero ms-2" href="{% url 'signup' %}">Sign Up</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <h1 class="hero-title">Your Ride, Your Way</h1>
+                        <p class="hero-subtitle">Experience the future of transportation with UGo. Safe, reliable, and affordable rides at your fingertips.</p>
+                        <div class="d-flex gap-3 flex-wrap">
+                            <a href="{% url 'signup' %}" class="btn btn-light btn-hero">
+                                <i class="fas fa-rocket me-2"></i>Get Started
+                            </a>
+                            <a href="#features" class="btn btn-outline-light btn-hero">
+                                <i class="fas fa-info-circle me-2"></i>Learn More
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 400'%3E%3Crect fill='%23f3f4f6' width='500' height='400' rx='20'/%3E%3Ccircle cx='250' cy='150' r='80' fill='%232563EB' opacity='0.2'/%3E%3Ccircle cx='250' cy='150' r='60' fill='%232563EB' opacity='0.4'/%3E%3Cpath d='M250 100 L280 180 L220 180 Z' fill='%2310B981'/%3E%3Crect x='180' y='200' width='140' height='60' rx='10' fill='%232563EB'/%3E%3Ccircle cx='200' cy='280' r='30' fill='%231F2937'/%3E%3Ccircle cx='300' cy='280' r='30' fill='%231F2937'/%3E%3Crect x='170' y='275' width='60' height='10' rx='5' fill='%23F59E0B'/%3E%3Crect x='270' y='275' width='60' height='10' rx='5' fill='%23F59E0B'/%3E%3C/svg%3E" alt="UGo Car" class="driver-illustration" style="max-width: 500px;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5" style="padding: 100px 0;">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-4 fw-bold mb-3">Why Choose UGo?</h2>
+                <p class="text-muted lead">Experience the best ride-sharing service in town</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Safe & Secure</h4>
+                        <p class="text-muted">Advanced safety features, verified drivers, and real-time tracking ensure your safety every step of the way.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">24/7 Available</h4>
+                        <p class="text-muted">Need a ride at 3 AM? We've got you covered. Our drivers are available round the clock for your convenience.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Affordable Rates</h4>
+                        <p class="text-muted">Competitive pricing with no hidden fees. Get the best value for your money with our transparent fare system.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Top Rated Drivers</h4>
+                        <p class="text-muted">Our drivers are rated by users and only the best make it to our platform. Quality service guaranteed.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Real-time Tracking</h4>
+                        <p class="text-muted">Track your ride in real-time with our advanced map integration. Know exactly when your driver will arrive.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Easy Payments</h4>
+                        <p class="text-muted">Multiple payment options including UPI, PayPal, Credit Cards, and Bank Transfers for your convenience.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-3">
+                    <div class="stat-item">
+                        <div class="stat-number">50K+</div>
+                        <p class="mb-0">Happy Riders</p>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <p class="mb-0">Verified Drivers</p>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="stat-item">
+                        <div class="stat-number">1M+</div>
+                        <p class="mb-0">Rides Completed</p>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="stat-item">
+                        <div class="stat-number">4.9</div>
+                        <p class="mb-0">Average Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container text-center">
+            <h2 class="display-4 fw-bold mb-4">Ready to Ride?</h2>
+            <p class="lead mb-5">Join thousands of happy riders and drivers on UGo today!</p>
+            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                <a href="{% url 'signup' %}?role=user" class="btn btn-light btn-hero">
+                    <i class="fas fa-user me-2"></i>Sign Up as Rider
+                </a>
+                <a href="{% url 'signup' %}?role=driver" class="btn btn-outline-light btn-hero">
+                    <i class="fas fa-car me-2"></i>Sign Up as Driver
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h4 class="fw-bold mb-3"><i class="fas fa-car-side me-2"></i>UGo</h4>
+                    <p class="text-muted">Your trusted ride-sharing partner. Safe, reliable, and affordable rides for everyone.</p>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">About Us</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Contact</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                    <h5 class="fw-bold mb-3">Legal</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted text-decoration-none">Terms</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Privacy</a></li>
+                        <li><a href="#" class="text-muted text-decoration-none">Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                    <h5 class="fw-bold mb-3">Connect With Us</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white fs-4"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white fs-4"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.2);">
+            <p class="text-center text-muted mb-0">© 2024 UGo. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endblock %}

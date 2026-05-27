@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Platform Payments</h1>
+            <p class="text-muted mb-0">Monitor all ride-related transactions and settlement statuses.</p>
+        </div>
+        <div class="d-flex gap-3 align-items-center">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary rounded-3 shadow-sm px-4 fw-bold dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-download me-2"></i>Download
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+                    <li><a class="dropdown-item fw-bold" href="{% url 'admin_download_report' 'payments' %}?q={{ query|default:'' }}&status={{ status|default:'' }}&method={{ method|default:'' }}">
+                        <i class="fas fa-file-csv me-2 text-primary"></i>CSV Report
+                    </a></li>
+                    <li><a class="dropdown-item fw-bold" href="{% url 'admin_download_report' 'payments' %}?format=pdf{% if query or status or method %}&q={{ query|default:'' }}&status={{ status|default:'' }}&method={{ method|default:'' }}{% endif %}">
+                        <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Document
+                    </a></li>
+                </ul>
+            </div>
+            <form method="GET" class="d-flex gap-2 mb-0">
+                <div class="bg-white p-1 rounded-3 shadow-sm border d-flex gap-1 overflow-hidden">
+                    <input type="text" name="q" class="border-0 px-3 py-1 small" placeholder="Search accounts..." value="{{ query|default:'' }}" style="outline: none; width: 180px;">
+                    <select name="method" class="border-0 px-2 small bg-light" style="outline: none; border-radius: 4px;">
+                        <option value="">Method</option>
+                        <option value="razorpay" {% if method == 'razorpay' %}selected{% endif %}>Online</option>
+                        <option value="cash" {% if method == 'cash' %}selected{% endif %}>Cash</option>
+                    </select>
+                    <select name="status" class="border-0 px-2 small bg-light" style="outline: none; border-radius: 4px;">
+                        <option value="">Status</option>
+                        <option value="completed" {% if status == 'completed' %}selected{% endif %}>Success</option>
+                        <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="failed" {% if status == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-2 px-3 fw-bold">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    {% if query or status or method %}
+                    <a href="{% url 'admin_manage_payments' %}" class="btn btn-light btn-sm rounded-2 px-2 d-flex align-items-center">
+                        <i class="fas fa-times"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+        <div class="card-body p-0">
+            <div class="table-responsive p-3">
+                <table class="table table-hover align-middle custom-table">
+                    <thead>
+                        <tr>
+                            <th class="border-0 text-muted small text-uppercase fw-bold ps-4">Ride ID</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Rider</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Driver</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Amount</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Method</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Status</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-bold text-dark">#RD-{{ payment.ride.id|stringformat:"04d" }}</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                        {{ payment.ride.rider.username|slice:":1"|upper }}
+                                    </div>
+                                    <span class="text-dark fw-medium small">{{ payment.ride.rider.username }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if payment.ride.driver %}
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                        {{ payment.ride.driver.username|slice:":1"|upper }}
+                                    </div>
+                                    <span class="text-dark fw-medium small">{{ payment.ride.driver.username }}</span>
+                                </div>
+                                {% else %}
+                                <span class="text-muted small">Not Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">₹{{ payment.amount }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary px-3 py-2 rounded-2 fw-medium small text-uppercase">
+                                    {{ payment.get_payment_method_display|default:payment.payment_method|default:"N/A" }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if payment.status == 'completed' %}
+                                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold small">SUCCESS</span>
+                                {% elif payment.status == 'pending' %}
+                                <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-bold small">PENDING</span>
+                                {% else %}
+                                <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill fw-bold small text-uppercase">{{ payment.get_status_display|default:payment.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ payment.created_at|date:"M d, Y H:i" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5">
+                                <p class="text-muted">No transactions recorded yet.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

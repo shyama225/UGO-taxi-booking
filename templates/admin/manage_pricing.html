@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Pricing Structure</h1>
+            <p class="text-muted mb-0">Configure base fares and operational rates for different vehicle segments.</p>
+        </div>
+        <a href="{% url 'admin_add_pricing' %}" class="btn btn-primary rounded-3 shadow-sm px-4 fw-bold">
+            <i class="fas fa-plus me-2"></i>Create New Logic
+        </a>
+    </div>
+    
+    <div class="row g-4">
+        {% for price in pricing %}
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden pricing-card" style="border-radius: 24px;">
+                <div class="card-header border-0 bg-transparent p-4 pb-0 text-center">
+                    <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold small text-uppercase mb-3">Vehicle Class</span>
+                    <h3 class="fw-bold text-dark mb-0">{{ price.name }}</h3>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <span class="text-muted small fw-bold text-uppercase d-block mb-1">Base Entrance Fee</span>
+                        <div class="d-flex align-items-baseline justify-content-center">
+                            <span class="h4 fw-bold text-slate-400 me-1">₹</span>
+                            <span class="display-5 fw-bold text-primary">{{ price.base_fare }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-light p-3 rounded-4 mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="small fw-medium text-muted">Distance Charge</span>
+                            <span class="small fw-bold text-dark">₹{{ price.per_km_rate }} / km</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="small fw-medium text-muted">Duration Charge</span>
+                            <span class="small fw-bold text-dark">₹{{ price.per_minute_rate }} / min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'admin_edit_pricing' price.id %}" class="btn btn-light flex-grow-1 rounded-3 fw-bold small"><i class="fas fa-edit me-1 text-muted"></i> Edit</a>
+                        <a href="{% url 'admin_delete_pricing' price.id %}" class="btn btn-outline-danger btn-icon rounded-3" onclick="return confirm('Delete this pricing plan?');">
+                            <i class="fas fa-trash-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="opacity-25 mb-3"><i class="fas fa-tags fa-4x"></i></div>
+            <p class="text-muted">No pricing models configured. Platform will use defaults.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.pricing-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.pricing-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1) !important; }
+.btn-icon { width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; }
+</style>
+{% endblock %}

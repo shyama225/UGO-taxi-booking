@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo Driver</a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="fas fa-plus-circle me-2"></i>Purchase Add-on</h2>
+        <a href="{% url 'driver_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="alert alert-warning mb-4">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Daily limit exceeded!</strong> Purchase an add-on to continue accepting rides today.
+            </div>
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-bolt me-2"></i>One-Day Add-on</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h2 class="text-primary fw-bold">+10 Rides</h2>
+                    <p class="text-muted">For today only</p>
+                    <hr>
+                    <h3 class="fw-bold mb-4">₹5.00</h3>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning btn-lg w-100">
+                            <i class="fas fa-shopping-cart me-2"></i>Purchase Add-on
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3">Current Status:</h6>
+                    <p>KM used today: <strong>{{ subscription.km_used_today|floatformat:1 }}</strong></p>
+                    <p>Daily KM limit: <strong>{{ subscription.plan.daily_km_limit }} km</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

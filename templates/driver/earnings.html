@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand">
+            <i class="fas fa-car-side me-2"></i>UGo Driver
+        </a>
+        <div class="collapse navbar-collapse justify-content-end">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>{{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'driver_profile' %}">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'driver_view_ratings' %}">
+                                <i class="fas fa-star me-2"></i>Ratings
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- PAGE BODY -->
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+
+    <!-- BACK + HEADER -->
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{% url 'driver_dashboard' %}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
+        <h2 class="fw-bold mb-0">
+            <i class="fas fa-wallet me-2 text-primary"></i>My Earnings
+        </h2>
+    </div>
+
+    <!-- TOTAL EARNINGS CARD -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100"
+                style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff;">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                        style="width:56px;height:56px;background:rgba(255,255,255,0.2);flex-shrink:0;">
+                        <i class="fas fa-indian-rupee-sign fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="small text-white-50 text-uppercase fw-semibold">Total Earned</div>
+                        <div class="fs-2 fw-bold">₹{{ total|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-info bg-opacity-10"
+                        style="width:56px;height:56px;flex-shrink:0;">
+                        <i class="fas fa-calendar-day text-info fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted text-uppercase fw-semibold">Today's Earnings</div>
+                        <div class="fs-2 fw-bold text-info">₹{{ today_earnings|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-warning bg-opacity-10"
+                        style="width:56px;height:56px;flex-shrink:0;">
+                        <i class="fas fa-calendar-alt text-warning fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted text-uppercase fw-semibold">This Month</div>
+                        <div class="fs-2 fw-bold text-warning">₹{{ month_earnings|floatformat:2 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-success bg-opacity-10"
+                        style="width:56px;height:56px;flex-shrink:0;">
+                        <i class="fas fa-list-check text-success fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted text-uppercase fw-semibold">Total Transactions</div>
+                        <div class="fs-2 fw-bold">{{ earnings|length }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-indigo bg-opacity-10"
+                        style="width:56px;height:56px;flex-shrink:0;">
+                        <i class="fas fa-road text-indigo fa-lg" style="color: #4f46e5;"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted text-uppercase fw-semibold">Total Range</div>
+                        <div class="fs-2 fw-bold" style="color: #4f46e5;">{{ total_km_traveled|floatformat:1 }} <span class="fs-6">km</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EARNINGS TABLE -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-bold">
+                <i class="fas fa-receipt me-2 text-primary"></i>Earnings Breakdown
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Ride</th>
+                            <th>Rider</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for earning in earnings %}
+                        <tr>
+                            <td class="text-muted">{{ forloop.counter }}</td>
+                            <td>
+                                {% if earning.ride %}
+                                <small class="ms-1 text-muted">
+                                    {{ earning.ride.pickup_location|default:"-"|truncatechars:18 }}
+                                    → {{ earning.ride.drop_address|default:"-"|truncatechars:18 }}
+                                </small>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if earning.ride and earning.ride.rider %}
+                                <i class="fas fa-user-circle text-muted me-1"></i>
+                                {{ earning.ride.rider.username }}
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold text-primary">₹{{ earning.amount|floatformat:2 }}</td>
+                            <td class="text-muted">
+                                {% if earning.created_at %}
+                                {{ earning.created_at|date:"M d, Y" }}
+                                {% elif earning.date %}
+                                {{ earning.date|date:"M d, Y" }}
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% with method=earning.ride.payments.first.payment_method %}
+                                    {% if method == 'razorpay' %}
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            <i class="fas fa-globe me-1"></i>Online
+                                        </span>
+                                    {% elif method == 'cash' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="fas fa-hand-holding-usd me-1"></i>Cash
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                {% if earning.status %}
+                                <span class="badge
+                                        {% if earning.status == 'paid' %}bg-primary
+                                        {% elif earning.status == 'pending' %}bg-warning text-dark
+                                        {% else %}bg-secondary{% endif %}">
+                                    {{ earning.status|capfirst }}
+                                </span>
+                                {% else %}
+                                <span class="badge bg-primary">Paid</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="fas fa-wallet fa-3x text-muted mb-3 d-block"></i>
+                                <p class="text-muted mb-1 fw-semibold">No earnings recorded yet</p>
+                                <small class="text-muted">Complete rides to start earning!</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- QUICK LINKS -->
+    <div class="mt-3 d-flex gap-2 flex-wrap">
+        <a href="{% url 'driver_ride_history' %}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-history me-1"></i>View Ride History
+        </a>
+        <a href="{% url 'driver_subscription_plans' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-credit-card me-1"></i>Subscription Plans
+        </a>
+    </div>
+
+</div><!-- /page body -->
+
+{% endblock %}

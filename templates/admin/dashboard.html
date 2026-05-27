@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-2 min-vh-100">
+    <!-- Welcome & Quick Stats Section -->
+    <div class="row mb-3">
+        <div class="col-12 mb-2">
+            <h4 class="fw-bold text-slate-800 mb-0">Dashboard Overview</h4>
+            <p class="text-muted small mb-0">Platform performance at a glance.</p>
+        </div>
+        
+        <!-- Stat Cards -->
+        <div class="col-md-3 mb-2">
+            <div class="stat-card h-100 shadow-sm border-0 position-relative overflow-hidden">
+                <div class="card-body p-2 position-relative z-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="stat-icon bg-white bg-opacity-20 rounded-2 p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fas fa-users-cog fs-6"></i>
+                        </div>
+                        <span class="badge bg-white bg-opacity-20 rounded-pill extra-small" style="font-size: 0.6rem;">Total</span>
+                    </div>
+                    <h4 class="fw-bold mb-0 text-white">{{ total_users }}</h4>
+                    <p class="extra-small mb-0 opacity-75 text-white">Registered Users</p>
+                </div>
+                <div class="stat-pattern"></div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="stat-card success h-100 shadow-sm border-0 position-relative overflow-hidden">
+                <div class="card-body p-2 position-relative z-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="stat-icon bg-white bg-opacity-20 rounded-2 p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fas fa-id-card fs-6"></i>
+                        </div>
+                        <span class="badge bg-white bg-opacity-20 rounded-pill extra-small" style="font-size: 0.6rem;">Active</span>
+                    </div>
+                    <h4 class="fw-bold mb-0 text-white">{{ total_drivers }}</h4>
+                    <p class="extra-small mb-0 opacity-75 text-white">Partner Drivers</p>
+                </div>
+                <div class="stat-pattern"></div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="stat-card warning h-100 shadow-sm border-0 position-relative overflow-hidden">
+                <div class="card-body p-2 position-relative z-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="stat-icon bg-white bg-opacity-20 rounded-2 p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fas fa-route fs-6"></i>
+                        </div>
+                        <span class="badge bg-white bg-opacity-20 rounded-pill extra-small" style="font-size: 0.6rem;">Today</span>
+                    </div>
+                    <h4 class="fw-bold mb-0 text-white">{{ today_rides }}</h4>
+                    <p class="extra-small mb-0 opacity-75 text-white">Rides Today</p>
+                </div>
+                <div class="stat-pattern"></div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-2">
+            <div class="stat-card info h-100 shadow-sm border-0 position-relative overflow-hidden" style="background: linear-gradient(135deg, #6366f1, #a855f7);">
+                <div class="card-body p-2 position-relative z-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div class="stat-icon bg-white bg-opacity-20 rounded-2 p-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fas fa-history fs-6"></i>
+                        </div>
+                        <span class="badge bg-white bg-opacity-20 rounded-pill extra-small" style="font-size: 0.6rem;">Total</span>
+                    </div>
+                    <h4 class="fw-bold mb-0 text-white">{{ total_rides }}</h4>
+                    <p class="extra-small mb-0 opacity-75 text-white">All-time Rides</p>
+                </div>
+                <div class="stat-pattern"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2">
+        <!-- Main Management Grid -->
+        <div class="col-12">
+            <div class="bg-white rounded-3 shadow-sm p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0">Management Hub</h6>
+                </div>
+                
+                <div class="row g-2">
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_users' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-users text-primary extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Users</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Riders</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_drivers' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-id-card text-primary extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Drivers</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Profiles</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_rides' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-map-marked-alt text-primary extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Rides</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">History</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_taxis' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-taxi text-warning extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Taxi</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Vehicles</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_pricing' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-tags text-danger extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Pricing</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Fares</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_subscriptions' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-gem text-info extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Plans</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Tiers</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_addons' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-box-open text-primary extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Add-Ons</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Boosters</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_payments' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-university text-secondary extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Payment</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Earnings</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_ratings' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-star text-warning extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Ratings</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Feedback</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_driver_subscriptions' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-user-check text-primary extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Subscribes Drivers</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Partners</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6 mb-1">
+                        <a href="{% url 'admin_manage_driver_addons' %}" class="hub-link text-decoration-none">
+                            <div class="hub-card d-flex align-items-center p-2 rounded-3 border bg-light h-100">
+                                <div class="icon-box me-2 flex-shrink-0" style="width: 28px; height: 28px;">
+                                    <i class="fas fa-bolt text-warning extra-small"></i>
+                                </div>
+                                <div class="text-start">
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size: 0.9rem;">Driver Add-Ons</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.7rem;">Purchases</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<style>
+/* Stat Cards */
+.stat-card {
+    border-radius: 20px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    transition: all 0.3s ease;
+}
+.stat-card.success { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+.stat-card.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+.stat-pattern {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 100px;
+    height: 100px;
+    background: white;
+    opacity: 0.1;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+/* Hub Grid */
+.hub-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #f1f5f9 !important;
+}
+.hub-link:hover .hub-card {
+    transform: translateY(-5px);
+    background-color: white !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.icon-box {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Activity Timeline */
+.activity-item:last-child {
+    border-color: transparent !important;
+}
+.status-badge {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+}
+
+.extra-small { font-size: 0.75rem; }
+.text-slate-800 { color: #1e293b; }
+.text-slate-400 { color: #94a3b8; }
+</style>
+{% endblock %}

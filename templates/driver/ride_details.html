@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ride Details</title>
+</head>
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-car-side me-2"></i>UGo Driver
+        </a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            <i class="fas fa-route me-2"></i>Ride Details
+        </h2>
+        <a href="{% url 'driver_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Back
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- LEFT SIDE -->
+        <div class="col-lg-8">
+
+            <!-- ROUTE CARD -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-map-marker-alt me-2"></i>Route
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="bg-light d-flex align-items-center justify-content-center"
+                         style="height: 300px; border-radius: 12px;">
+                        <div class="text-center text-muted">
+                            <i class="fas fa-map-marked-alt fa-3x mb-3"></i>
+                            <p>Route map</p>
+                            <small>{{ ride.pickup_location }} → {{ ride.drop_address }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIDE INFO -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-info-circle me-2"></i>Ride Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Pickup Location</label>
+                            <p class="fw-bold mb-0">
+                                <i class="fas fa-map-marker-alt text-success me-2"></i>
+                                {{ ride.pickup_location }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Dropoff Location</label>
+                            <p class="fw-bold mb-0">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                {{ ride.drop_address }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <span>Distance:
+                            <strong>{{ ride.distance_km|default:"-" }} km</strong>
+                        </span>
+                        <span>Est. Fare:
+                            <strong>₹{{ ride.estimated_fare|default:"-" }}</strong>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-lg-4">
+
+            <!-- RIDER INFO -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-user me-2"></i>Rider Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 60px; height: 60px;">
+                            <i class="fas fa-user text-white fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">{{ ride.rider.username }}</h6>
+                            <small class="text-muted">{{ ride.rider.phone }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-tasks me-2"></i>Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+
+                    {% if ride.status == 'requested' %}
+                        <a href="{% url 'driver_accept_ride' ride.id %}"
+                           class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-check me-2"></i>Accept Ride
+                        </a>
+
+                        <a href="{% url 'driver_reject_ride' ride.id %}"
+                           class="btn btn-outline-danger w-100"
+                           onclick="return confirm('Reject this ride?');">
+                            <i class="fas fa-times me-2"></i>Reject Ride
+                        </a>
+
+                    {% elif ride.status == 'accepted' or ride.status == 'arrived' %}
+
+                        <!-- OTP FORM -->
+                        <div class="mt-3">
+                            <h6 class="fw-bold mb-2">
+                                <i class="fas fa-key me-2"></i>Enter OTP to Start Ride
+                            </h6>
+
+                            <form method="POST"
+                                  action="{% url 'driver_verify_otp' ride.id %}">
+                                {% csrf_token %}
+
+                                <input type="text"
+                                       name="otp"
+                                       class="form-control mb-2"
+                                       placeholder="Enter 4-digit OTP"
+                                       maxlength="4"
+                                       required>
+
+                                <button type="submit"
+                                        class="btn btn-primary w-100">
+                                    Start Ride
+                                </button>
+                            </form>
+
+                            {% if error %}
+                                <p class="text-danger mt-2">{{ error }}</p>
+                            {% endif %}
+                        </div>
+
+                    {% elif ride.status == 'in_progress' %}
+
+                        <a href="{% url 'driver_complete_ride' ride.id %}"
+                           class="btn btn-primary w-100">
+                            <i class="fas fa-flag-checkered me-2"></i>Complete Ride
+                        </a>
+
+                    {% else %}
+                        <p class="text-center text-muted mb-0">
+                            Ride {{ ride.status }}
+                        </p>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+</html>

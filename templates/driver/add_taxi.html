@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo Driver</a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <h2 class="fw-bold mb-4"><i class="fas fa-car me-2"></i>Add Your Vehicle</h2>
+    
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i>Vehicle Information</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Vehicle Model</label>
+                            <input type="text" class="form-control" name="model_name" placeholder="e.g., Toyota Camry" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Plate Number</label>
+                            <input type="text" class="form-control" name="plate_number" placeholder="e.g., ABC-1234" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Vehicle Type</label>
+                            <select class="form-control" name="taxi_type" required>
+                                <option value="sedan">Sedan</option>
+                                <option value="suv">SUV</option>
+                                <option value="hatchback">Hatchback</option>
+                                <option value="luxury">Luxury</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Capacity (seats)</label>
+                            <input type="number" class="form-control" name="capacity" value="4" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Color</label>
+                            <input type="text" class="form-control" name="color" placeholder="e.g., White" required>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Save Vehicle
+                            </button>
+                            <a href="{% url 'driver_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Back
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

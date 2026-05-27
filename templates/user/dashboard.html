@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563EB, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>{{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'user_profile' %}">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center gap-2 shadow-sm"
+            role="alert">
+            {% if 'success' in message.tags %}
+            <i class="fas fa-check-circle fa-lg text-success"></i>
+            {% elif 'error' in message.tags %}
+            <i class="fas fa-times-circle fa-lg text-danger"></i>
+            {% else %}
+            <i class="fas fa-info-circle fa-lg"></i>
+            {% endif %}
+            <div class="fw-semibold">{{ message }}</div>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">
+            <i class="fas fa-home me-2"></i>Welcome, {{ request.user.username }}!
+        </h2>
+        <a href="{% url 'user_request_ride' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-taxi me-2"></i>Request a Ride
+        </a>
+    </div>
+
+    <!-- 🔵 ACTIVE RIDE -->
+    {% if active_ride %}
+    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #2563EB, #3b82f6);">
+        <div class="card-body text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-1">
+                        <i class="fas fa-car-side me-2"></i>You have an active ride!
+                    </h5>
+                    <p class="mb-0 opacity-75">
+                        Ride to {{ active_ride.drop_address }}
+                    </p>
+                    <p class="mb-0 mt-2 text-white">
+                        <i class="fas fa-route me-1"></i> Distance: {{ active_ride.distance_km|default:"--" }} km
+                        <span class="ms-3"><i class="fas fa-money-bill-wave me-1"></i> Est. Fare: ₹{{ active_ride.estimated_fare|default:"--" }}</span>
+                    </p>
+                </div>
+                <div class="text-end">
+                    <span class="status-badge bg-white text-primary">
+                        {{ active_ride.status }}
+                    </span>
+                    <a href="{% url 'user_ride_status' active_ride.id %}" class="btn btn-light btn-sm mt-2">
+                        <i class="fas fa-eye me-1"></i>Track Ride
+                    </a>
+                </div>
+            </div>
+
+            <!-- 🔐 OTP SECTION (ONLY WHEN ACCEPTED) -->
+            <!-- {% if active_ride.status == "accepted" %}
+            <div class="alert alert-warning text-center mt-3 mb-0">
+                <h5 class="mb-1">🔐 Ride OTP</h5>
+                <h2 class="fw-bold mb-1">{{ active_ride.otp }}</h2>
+                <p class="mb-0">
+                    Share this OTP with the driver to start the ride
+                </p>
+            </div>
+            {% endif %} -->
+
+
+            {% if active_ride and active_ride.status == "accepted" %}
+            <div class="alert alert-warning text-center mt-3 mb-0">
+                <h5 class="mb-1">🔐 Your Ride OTP</h5>
+                <h2 class="fw-bold mb-1" style="color: green;">
+                    {{ active_ride.otp }}
+                </h2>
+                <p class="mb-0">
+                    Share this OTP with the driver to start the ride
+                </p>
+            </div>
+            {% endif %}
+
+
+
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 📊 QUICK STATS -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-history fa-2x text-primary mb-2"></i>
+                    <h4 class="fw-bold">{{ rides.count }}</h4>
+                    <p class="text-muted mb-0">Total Rides</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <h4 class="fw-bold">{{ completed_rides_count }}</h4>
+                    <p class="text-muted mb-0">Completed</p>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                    <h4 class="fw-bold">4.8</h4>
+                    <p class="text-muted mb-0">Avg Rating</p>
+                </div>
+            </div>
+        </div> -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm text-center h-100">
+                <div class="card-body">
+                    <i class="fas fa-wallet fa-2x text-info mb-2"></i>
+                    <h4 class="fw-bold">₹{{ total_spent|floatformat:2 }}</h4>
+                    <p class="text-muted mb-0">Total Spent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🧾 RECENT RIDES -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-route me-2"></i>Recent Rides
+                </h5>
+                <a href="{% url 'user_ride_history' %}" class="btn btn-outline-primary btn-sm">
+                    View All
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Date</th>
+                            <th>Pickup</th>
+                            <th>Dropoff</th>
+                            <th>Fare</th>
+                            <th>Status / Payment</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in rides %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ ride.requested_at|date:"M d, Y" }}</td>
+                            <td>{{ ride.pickup_location|truncatechars:15 }}</td>
+                            <!-- <td>{{ ride.dropoff_location|truncatechars:15 }}</td> -->
+                            <td>{{ ride.drop_address|truncatechars:15 }}</td>
+
+                            <td>₹{{ ride.actual_fare|default:ride.estimated_fare|default:"-" }}</td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    <span class="status-badge status-{{ ride.status }}">
+                                        {{ ride.status|capfirst }}
+                                    </span>
+                                    {% if ride.is_paid %}
+                                        {% with method=ride.payments.first.payment_method %}
+                                            {% if method == 'razorpay' %}
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-light" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-globe me-1"></i>Online
+                                                </span>
+                                            {% elif method == 'cash' %}
+                                                <span class="badge bg-success-subtle text-success border border-success-light" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-hand-holding-usd me-1"></i>Cash
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-check-circle me-1"></i>Paid
+                                                </span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% elif ride.status == 'completed' %}
+                                    <span
+                                        class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+                                        style="font-size: 0.75rem;">
+                                        <i class="fas fa-clock me-1"></i>Unpaid
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if ride.ratings.exists %}
+                                <div class="text-warning small text-nowrap">
+                                    {% with rating=ride.ratings.first.rating %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endwith %}
+                                </div>
+                                {% else %}
+                                <span class="text-muted small">Not Rated</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if ride.status == "completed" and not ride.is_paid %}
+
+                                <!-- 💳 PAYMENT BUTTON -->
+                                <a href="{% url 'user_payment' ride.id %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-credit-card"></i> Make Payment
+                                </a>
+
+                                {% elif ride.status == "completed" and ride.is_paid and not ride.ratings.exists %}
+
+                                <!-- ⭐ RATE BUTTON (Only After Payment) -->
+                                <a href="{% url 'user_rate_driver' ride.id %}" class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-star"></i> Rate
+                                </a>
+
+                                {% elif ride.status == "completed" and ride.is_paid and ride.ratings.exists %}
+
+                                <!-- ✅ ALREADY RATED -->
+                                <span class="text-success small">
+                                    <i class="fas fa-check-circle"></i> Done
+                                </span>
+
+                                {% elif ride.status == "requested" %}
+
+                                <!-- ❌ CANCEL OPTION -->
+                                <a href="{% url 'user_cancel_ride' ride.id %}" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Cancel this ride?');">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+
+                                {% else %}
+
+                                <button class="btn btn-sm btn-outline-secondary" disabled>
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-taxi fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-3">No rides yet</p>
+                                <a href="{% url 'user_request_ride' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i>Request Your First Ride
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+</html>

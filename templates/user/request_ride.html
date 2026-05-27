@@ -1,0 +1,723 @@
+{% extends 'base.html' %}
+
+{% block title %}Book a Ride — UGo{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ── Page Layout ─────────────────────────────────────────── */
+  .book-wrapper {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    gap: 0;
+    height: calc(100vh - 64px);
+    overflow: hidden;
+  }
+
+  /* ── Left Panel ──────────────────────────────────────────── */
+  .book-panel {
+    background: #0f0f1a; /* Professional Dark Blue */
+    padding: 28px 24px;
+    overflow-y: auto;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .book-panel h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ── Input fields ────────────────────────────────────────── */
+  .field-group label {
+    display: block;
+    font-size: .78rem;
+    font-weight: 700;
+    color: #94a3b8; /* Professional Slate Silver */
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 7px;
+  }
+
+  .location-input-wrap {
+    position: relative;
+  }
+
+  .location-input-wrap .pin {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+
+  .location-input-wrap input {
+    width: 100%;
+    padding: 12px 12px 12px 15px;
+    background: #1a1a2e;
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #ffffff;
+    font-size: .92rem;
+    transition: all .2s;
+    box-sizing: border-box;
+  }
+
+  .location-input-wrap input::placeholder {
+    color: #475569;
+  }
+
+  .location-input-wrap input:focus {
+    outline: none;
+    border-color: #3b82f6;
+  }
+
+  .refresh-loc {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    cursor: pointer;
+    font-size: 0.85rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 5;
+  }
+
+  .refresh-loc:hover {
+    background: #3b82f6;
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.05);
+  }
+  
+  .refresh-loc:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  /* Add padding to input to accommodate refresh button */
+  #pickup-input {
+    padding-right: 45px;
+  }
+
+  /* ── Vehicle picker ──────────────────────────────────────── */
+  .vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
+  }
+
+  .vehicle-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 18px 8px;
+    background: #1e293b;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .2s;
+    user-select: none;
+    position: relative;
+    color: #ffffff;
+  }
+
+  .vehicle-card:hover {
+    background: #334155;
+    transform: translateY(-2px);
+  }
+
+  .vehicle-card.selected {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.12);
+  }
+
+  .vehicle-card .v-label {
+    font-size: .82rem;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .vehicle-card .v-desc {
+    font-size: .68rem;
+    color: #94a3b8;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .vehicle-card input[type="radio"] {
+    display: none;
+  }
+
+  /* Nearby badge */
+  .nearby-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #10b981;
+    color: #000;
+    font-size: .6rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* ── Fare estimate strip ─────────────────────────────────── */
+  .fare-strip {
+    background: #1e293b;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ffffff;
+  }
+
+  .fare-strip .fare-label {
+    font-size: .8rem;
+    color: #94a3b8;
+  }
+
+  .fare-strip .fare-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #3b82f6;
+  }
+
+  .fare-strip .fare-dist {
+    font-size: .75rem;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  /* ── Book button ─────────────────────────────────────────── */
+  .btn-book {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #1e3a8a, #1e40af);
+    border: none;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: .03em;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-book:hover {
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+    transform: translateY(-2px);
+  }
+
+  .btn-book:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* ── Map panel ───────────────────────────────────────────── */
+  #map {
+    height: 100%;
+    width: 100%;
+  }
+
+  /* ── Matching overlay ──────────────────────────────────────── */
+  .matching-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .75);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .matching-overlay.active {
+    display: flex;
+  }
+
+  .spinner {
+    width: 56px;
+    height: 56px;
+    border: 5px solid rgba(59, 130, 246, .2);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .matching-text {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* ── Radius info ─────────────────────────────────────────── */
+  .radius-info {
+    font-size: .78rem;
+    color: #64748b;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .radius-dot {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  /* ── Enhanced Driver Marker ────────────────────────────────── */
+  .custom-driver-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .driver-icon-wrapper {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    background: #ffffff;
+    border: 3px solid #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+
+  .driver-icon-wrapper i {
+    color: #1e3a8a;
+    font-size: 16px;
+  }
+
+  .driver-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(59, 130, 246, 0.4);
+    border-radius: 50%;
+    animation: marker-pulse 2s infinite;
+    z-index: 1;
+  }
+
+  @keyframes marker-pulse {
+    0% { transform: scale(1); opacity: 0.6; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="book-wrapper">
+
+  <!-- ─── LEFT PANEL ─────────────────────────────────────── -->
+  <div class="book-panel">
+
+    <h2>Book a Ride</h2>
+
+    {% if messages %}
+    {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}" style="border-radius:10px;font-size:.88rem;">
+      {{ msg }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form id="ride-form" method="POST" action="{% url 'user_request_ride' %}">
+      {% csrf_token %}
+
+      <!-- Hidden coordinate + distance fields populated by JS -->
+      <input type="hidden" name="pickup_lat" id="pickup_lat">
+      <input type="hidden" name="pickup_lng" id="pickup_lng">
+      <input type="hidden" name="drop_lat" id="drop_lat">
+      <input type="hidden" name="drop_lng" id="drop_lng">
+      <input type="hidden" name="distance_km" id="distance_km">
+
+      <!-- ── Pickup ── -->
+      <div class="field-group">
+        <label>Pickup Location</label>
+        <div class="location-input-wrap">
+          <input type="text" id="pickup-input" name="pickup_location" placeholder="Search pickup point…"
+            autocomplete="off" required style="padding-left: 15px;">
+          <button type="button" class="refresh-loc" onclick="refreshCurrentLocation()" title="Use current location">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Drop ── -->
+      <div class="field-group">
+        <label>Drop Location</label>
+        <div class="location-input-wrap">
+          <input type="text" id="drop-input" name="drop_location" placeholder="Search destination…" autocomplete="off"
+            required style="padding-left: 15px;">
+        </div>
+      </div>
+
+      <!-- ── Vehicle type picker ── -->
+      <div class="field-group">
+        <label>Vehicle Type</label>
+        <div class="vehicle-grid">
+          {% for v in vehicle_options %}
+          {% with c=forloop.counter %}
+          <label class="vehicle-card {% if c == 2 %}selected{% endif %}" id="vcard-{{ v.value }}">
+            <input type="radio" name="vehicle_type" value="{{ v.value }}" {% cycle "" "checked" "" "" "" "" "" %}
+              onchange="selectVehicle('{{ v.value }}')">
+            <span class="nearby-badge" id="badge-{{ v.value }}" style="display:none">0 nearby</span>
+            <span class="v-label" style="font-size: 1rem; margin-top: 5px;">{{ v.label }}</span>
+            <span class="v-desc" style="margin-top: 2px;">{{ v.desc }}</span>
+          </label>
+          {% endwith %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ── Fare estimate ── -->
+      <div class="fare-strip" id="fare-strip" style="display:none">
+        <div>
+          <div class="fare-label">Estimated Fare</div>
+          <div class="fare-dist" id="dist-label">— km</div>
+        </div>
+        <div class="fare-value" id="fare-label">₹—</div>
+      </div>
+
+      <!-- ── Search radius info ── -->
+      <div class="radius-info">
+        <span class="radius-dot" style="background: #3b82f6;"></span>
+        Searching drivers within <strong style="color:#3b82f6;margin:0 4px;">{{ search_radius_km }} km</strong> radius
+      </div>
+
+      <!-- ── Book button ── -->
+      <button type="submit" class="btn-book" id="book-btn" disabled>
+        <span id="book-btn-text">Select locations to continue</span>
+      </button>
+
+    </form>
+
+  </div><!-- /book-panel -->
+
+  <!-- ─── MAP ────────────────────────────────────────────── -->
+  <div id="map"></div>
+
+</div><!-- /book-wrapper -->
+
+<!-- ─── MATCHING OVERLAY ──────────────────────────────────── -->
+<div class="matching-overlay" id="matching-overlay">
+  <div class="spinner"></div>
+  <div class="matching-text">
+    Finding your nearest driver…<br>
+    <small style="color:#9b9bb4;font-weight:400;">Checking availability &amp; distance</small>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet (OSM — no API key required) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  // ── Map setup ─────────────────────────────────────────────────────────────
+  const map = L.map('map').setView([20.5937, 78.9629], 5);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let pickupMarker = null, dropMarker = null, routeLine = null;
+
+  const pickupIcon = L.divIcon({
+    className: '',
+    html: '<div style="background:#00c896;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 6px rgba(0,200,150,.6)"></div>',
+    iconSize: [14, 14], iconAnchor: [7, 7]
+  });
+  const dropIcon = L.divIcon({
+    className: '',
+    html: '<div style="background:#ff4757;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 6px rgba(255,71,87,.6)"></div>',
+    iconSize: [14, 14], iconAnchor: [7, 7]
+  });
+
+  // ── Geocoder (Nominatim) ───────────────────────────────────────────────────
+  async function geocode(query) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+    const data = await res.json();
+    return data.length ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon), name: data[0].display_name } : null;
+  }
+
+  // ── Route drawing (OSRM free API) ────────────────────────────────────────
+  async function drawRoute(pLat, pLng, dLat, dLng) {
+    const url = `https://router.project-osrm.org/route/v1/driving/${pLng},${pLat};${dLng},${dLat}?overview=full&geometries=geojson`;
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.routes && data.routes[0]) {
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = L.geoJSON(data.routes[0].geometry, {
+          style: { color: '#3b82f6', weight: 4, opacity: .85 }
+        }).addTo(map);
+
+        const distKm = (data.routes[0].distance / 1000).toFixed(2);
+        document.getElementById('distance_km').value = distKm;
+        updateFare(distKm);
+
+        // Fit map to route
+        map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
+      }
+    } catch (e) {
+      console.warn('Route fetch failed', e);
+    }
+  }
+
+  // ── Fare estimation (client-side approximation) ──────────────────────────
+  const RATES = {{ pricing_data_json|safe }};
+
+  let selectedVehicle = 'sedan';
+
+  function selectVehicle(val) {
+    selectedVehicle = val;
+    document.querySelectorAll('.vehicle-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('vcard-' + val).classList.add('selected');
+    const dist = parseFloat(document.getElementById('distance_km').value) || 0;
+    if (dist) updateFare(dist);
+  }
+
+  function updateFare(distKm) {
+    const r = RATES[selectedVehicle] || RATES.sedan;
+    const fare = Number((r.base + parseFloat(distKm) * r.per_km).toFixed(2));
+    document.getElementById('fare-strip').style.display = 'flex';
+    document.getElementById('fare-label').textContent = '₹' + fare;
+    document.getElementById('dist-label').textContent = distKm + ' km';
+  }
+
+  // ── Location input wiring ────────────────────────────────────────────────
+  let pickupCoords = null, dropCoords = null;
+
+  async function onPickupEnter() {
+    const q = document.getElementById('pickup-input').value.trim();
+    if (!q) return;
+    const loc = await geocode(q);
+    if (!loc) return;
+    pickupCoords = loc;
+    document.getElementById('pickup_lat').value = loc.lat;
+    document.getElementById('pickup_lng').value = loc.lng;
+    if (pickupMarker) map.removeLayer(pickupMarker);
+    pickupMarker = L.marker([loc.lat, loc.lng], { icon: pickupIcon })
+      .addTo(map).bindPopup('📍 Pickup').openPopup();
+    map.setView([loc.lat, loc.lng], 13);
+    if (dropCoords) drawRoute(loc.lat, loc.lng, dropCoords.lat, dropCoords.lng);
+    updateNearbyDrivers();
+    checkReady();
+  }
+
+  async function onDropEnter() {
+    const q = document.getElementById('drop-input').value.trim();
+    if (!q) return;
+    const loc = await geocode(q);
+    if (!loc) return;
+    dropCoords = loc;
+    document.getElementById('drop_lat').value = loc.lat;
+    document.getElementById('drop_lng').value = loc.lng;
+    if (dropMarker) map.removeLayer(dropMarker);
+    dropMarker = L.marker([loc.lat, loc.lng], { icon: dropIcon })
+      .addTo(map).bindPopup('🏁 Drop').openPopup();
+    if (pickupCoords) drawRoute(pickupCoords.lat, pickupCoords.lng, loc.lat, loc.lng);
+    checkReady();
+  }
+
+  function checkReady() {
+    const btn = document.getElementById('book-btn');
+    const txt = document.getElementById('book-btn-text');
+    if (pickupCoords && dropCoords) {
+      btn.disabled = false;
+      txt.textContent = '🚀 Book Ride Now';
+    }
+  }
+
+  // Debounced input listeners
+  let pickupTimer, dropTimer;
+  document.getElementById('pickup-input').addEventListener('input', () => {
+    clearTimeout(pickupTimer);
+    pickupTimer = setTimeout(onPickupEnter, 800);
+  });
+  document.getElementById('drop-input').addEventListener('input', () => {
+    clearTimeout(dropTimer);
+    dropTimer = setTimeout(onDropEnter, 800);
+  });
+
+  // ── Click on map to place markers ────────────────────────────────────────
+  let mapClickMode = 'pickup'; // alternate
+  map.on('click', async (e) => {
+    const { lat, lng } = e.latlng;
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+    const data = await res.json();
+    const name = data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+
+    if (mapClickMode === 'pickup') {
+      document.getElementById('pickup-input').value = name;
+      document.getElementById('pickup_lat').value = lat;
+      document.getElementById('pickup_lng').value = lng;
+      pickupCoords = { lat, lng };
+      if (pickupMarker) map.removeLayer(pickupMarker);
+      pickupMarker = L.marker([lat, lng], { icon: pickupIcon }).addTo(map).bindPopup('📍 Pickup').openPopup();
+      mapClickMode = 'drop';
+    } else {
+      document.getElementById('drop-input').value = name;
+      document.getElementById('drop_lat').value = lat;
+      document.getElementById('drop_lng').value = lng;
+      dropCoords = { lat, lng };
+      if (dropMarker) map.removeLayer(dropMarker);
+      dropMarker = L.marker([lat, lng], { icon: dropIcon }).addTo(map).bindPopup('🏁 Drop').openPopup();
+      mapClickMode = 'pickup';
+      if (pickupCoords) drawRoute(pickupCoords.lat, pickupCoords.lng, lat, lng);
+    }
+    updateNearbyDrivers();
+    checkReady();
+  });
+
+  // ── Try to get user's current location ────────────────────────────────────
+  function refreshCurrentLocation() {
+    if (navigator.geolocation) {
+      const btn = document.querySelector('.refresh-loc i');
+      if (btn) btn.classList.add('fa-spin');
+      
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        map.setView([lat, lng], 14);
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+          .then(r => r.json()).then(data => {
+            const name = data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            document.getElementById('pickup-input').value = name;
+            document.getElementById('pickup_lat').value = lat;
+            document.getElementById('pickup_lng').value = lng;
+            pickupCoords = { lat, lng };
+            if (pickupMarker) map.removeLayer(pickupMarker);
+            pickupMarker = L.marker([lat, lng], { icon: pickupIcon }).addTo(map).bindPopup('📍 Your Location').openPopup();
+            mapClickMode = 'drop';
+            updateNearbyDrivers();
+            
+            if (btn) btn.classList.remove('fa-spin');
+          }).catch(() => { 
+            if (btn) btn.classList.remove('fa-spin');
+          });
+      }, (err) => { 
+        console.warn('Geolocation error:', err);
+        if (btn) btn.classList.remove('fa-spin');
+        alert("Could not get your location. Please check browser permissions.");
+      });
+    } else {
+      alert("Geolocation is not supported by your browser.");
+    }
+  }
+
+  // Initial call on load
+  document.addEventListener('DOMContentLoaded', () => {
+    refreshCurrentLocation();
+  });
+
+  // ── Nearby Drivers Fetching ──────────────────────────────────────────────
+  let driverMarkers = [];
+  const RADIUS_LIMIT = Number("{{ search_radius_km }}") || 10;
+
+  async function updateNearbyDrivers() {
+    if (!pickupCoords) return;
+    const { lat, lng } = pickupCoords;
+
+    try {
+      const res = await fetch(`/api/nearby-drivers/?lat=${lat}&lng=${lng}&radius=${RADIUS_LIMIT}&vehicle_type=${selectedVehicle}`);
+      const data = await res.json();
+
+      // Clear old markers
+      driverMarkers.forEach(m => map.removeLayer(m));
+      driverMarkers = [];
+
+      // Reset badges
+      document.querySelectorAll('.nearby-badge').forEach(b => {
+        b.style.display = 'none';
+        b.textContent = '0';
+      });
+
+      if (data.drivers && data.drivers.length > 0) {
+        const counts = {};
+
+        data.drivers.forEach(d => {
+          // Update counts
+          const type = d.vehicle_type.toLowerCase();
+          counts[type] = (counts[type] || 0) + 1;
+
+          // Add marker to map
+          // Enhanced Driver Icon using FontAwesome
+          const driverIcon = L.divIcon({
+            className: 'custom-driver-marker',
+            html: `
+              <div class="driver-icon-wrapper">
+                <i class="fas fa-car"></i>
+                <div class="driver-pulse"></div>
+              </div>
+            `,
+            iconSize: [36, 36],
+            iconAnchor: [18, 18]
+          });
+          const m = L.marker([d.latitude || (lat + (Math.random() - 0.5) * 0.01), d.longitude || (lng + (Math.random() - 0.5) * 0.01)], { icon: driverIcon })
+            .addTo(map)
+            .bindPopup(`<b>${d.name}</b><br>${d.vehicle_type}<br>${d.distance_km} km away`);
+          driverMarkers.push(m);
+        });
+
+        // Update badges
+        for (const [type, count] of Object.entries(counts)) {
+          const badge = document.getElementById(`badge-${type}`);
+          if (badge) {
+            badge.style.display = 'block';
+            badge.textContent = `${count} nearby`;
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch nearby drivers:', err);
+    }
+  }
+
+  // ── Form submit — show matching overlay ──────────────────────────────────
+  document.getElementById('ride-form').addEventListener('submit', (e) => {
+    if (!pickupCoords || !dropCoords) { e.preventDefault(); return; }
+    document.getElementById('matching-overlay').classList.add('active');
+  });
+</script>
+{% endblock %}

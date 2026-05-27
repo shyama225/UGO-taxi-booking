@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'driver_dashboard' %}">
+            <i class="fas fa-car-side me-2"></i>UGo Driver
+        </a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+
+    <h2 class="fw-bold mb-4">
+        <i class="fas fa-crown me-2 text-primary"></i>
+        {% if is_renewal %}Renew {{ plan.name }} Plan{% else %}Subscribe to {{ plan.name }}{% endif %}
+    </h2>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 16px;">
+                <div class="row g-0">
+                    <!-- Left Column: Plan Summary -->
+                    <div class="col-md-5 bg-light p-4 border-end">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-receipt me-2 text-primary"></i>Plan Summary
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase">Plan</label>
+                            <p class="mb-0 fw-bold text-dark">{{ plan.name }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase">Duration</label>
+                            <p class="mb-0 text-dark">
+                                <i class="fas fa-calendar-alt me-1 text-primary"></i>
+                                {{ plan.duration_days }} days
+                            </p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase">Daily KM Limit</label>
+                            <p class="mb-0 text-dark">
+                                <i class="fas fa-road me-1 text-primary"></i>
+                                {{ plan.daily_km_limit }} km / day
+                            </p>
+                        </div>
+                        
+                        {% if plan.description %}
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase">Description</label>
+                            <p class="mb-0 small text-muted">{{ plan.description }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <hr class="my-3 opacity-10">
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                            <span class="fw-bold">Total Amount</span>
+                            <span class="h4 text-primary fw-bold mb-0">₹{{ plan.price }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Secure Checkout -->
+                    <div class="col-md-7 p-4 d-flex flex-column justify-content-center">
+                        <div class="text-center mb-4">
+                            <h5 class="fw-bold mb-1">
+                                <i class="fas fa-shield-alt me-2 text-primary"></i>Secure Checkout
+                            </h5>
+                            <p class="text-muted small">Complete your subscription securely with Razorpay</p>
+                        </div>
+
+                        {% if razorpay_error %}
+                        <div class="alert alert-warning py-2 small text-center">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Gateway connection failed. <br><small>{{ razorpay_error }}</small>
+                        </div>
+                        {% endif %}
+
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-3 text-center mb-4">
+                            <p class="text-uppercase small fw-bold text-primary mb-1">Subscription Total</p>
+                            <h1 class="display-6 fw-bold text-primary mb-0">₹{{ plan.price }}</h1>
+                        </div>
+
+                        <div id="online-actions">
+                            {% if razorpay_order_id %}
+                            <button type="button" class="btn btn-primary btn-lg w-100 shadow-sm" id="pay-btn" style="border-radius: 12px; padding: 12px;">
+                                <i class="fas fa-lock me-2"></i>
+                                {% if is_renewal %}Pay & Extend Validity{% else %}Pay & Subscribe{% endif %}
+                            </button>
+                            {% else %}
+                            <button type="button" class="btn btn-secondary btn-lg w-100" disabled>
+                                <i class="fas fa-exclamation-circle me-2"></i>Gateway Unavailable
+                            </button>
+                            {% endif %}
+                        </div>
+
+                        <form method="POST" action="{% url 'driver_subscribe' plan.id %}" id="subscribe-form" style="display: none;">
+                            {% csrf_token %}
+                            <input type="hidden" name="payment_method" value="razorpay">
+                            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+                            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+                            <input type="hidden" name="upi_id" id="form_upi_id">
+                        </form>
+                        
+                        <div class="mb-4 p-3 bg-white border border-primary border-opacity-10 rounded-3 shadow-sm">
+                            <label class="text-dark small fw-bold text-uppercase mb-2 d-block">
+                                <i class="fas fa-id-card me-1 text-primary"></i>Your UPI ID (to receive payments)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-at text-primary"></i>
+                                </span>
+                                <input type="text" name="driver_upi_id" id="driver_upi_id" class="form-control border-start-0" 
+                                       placeholder="example@upi" value="{{ request.user.driver_profile.upi_id|default:'' }}"
+                                       style="border-radius: 0 12px 12px 0;">
+                            </div>
+                            <p class="extra-small text-muted mt-2 mb-0">
+                                <i class="fas fa-info-circle me-1"></i> This UPI ID is where riders will send you payments directly.
+                            </p>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <i class="fas fa-shield-check text-muted me-1"></i>
+                            <span class="text-muted" style="font-size: 0.75rem;">Secure & Encrypted Transaction</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'driver_subscription_plans' %}" class="btn btn-link text-muted text-decoration-none">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Plans
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if razorpay_order_id %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    document.getElementById('pay-btn').onclick = function () {
+        var upiId = document.getElementById('driver_upi_id').value;
+        if (!upiId) {
+            alert("Please enter your UPI ID first. This is where you will receive payments from riders.");
+            return;
+        }
+        
+        var options = {
+            "key": "{{ razorpay_key }}",
+            "amount": "{{ amount_in_paise }}",
+            "currency": "INR",
+            "name": "UGo Driver",
+            "description": "{{ plan.name }} Subscription",
+            "order_id": "{{ razorpay_order_id }}",
+            "prefill": {
+                "name": "{{ user_name }}",
+                "email": "{{ user_email }}",
+                "contact": "{{ user_phone }}"
+            },
+            "handler": function (response) {
+                // Show full-screen overlay immediately
+                document.getElementById('loading-overlay').style.display = 'flex';
+
+                // Build form data
+                var formData = new FormData();
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                formData.append('payment_method', 'razorpay');
+                formData.append('razorpay_payment_id', response.razorpay_payment_id);
+                formData.append('razorpay_order_id', response.razorpay_order_id);
+                formData.append('razorpay_signature', response.razorpay_signature);
+                formData.append('upi_id', document.getElementById('driver_upi_id').value);
+
+                // Set hidden form fields
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_order_id').value = response.razorpay_order_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('form_upi_id').value = document.getElementById('driver_upi_id').value;
+
+                // Submit form to backend
+                document.getElementById('subscribe-form').submit();
+            },
+            "modal": {
+                "ondismiss": function () {
+                    document.getElementById('pay-btn').disabled = false;
+                    document.getElementById('pay-btn').innerHTML =
+                        '<i class="fas fa-lock me-2"></i>{% if is_renewal %}Pay & Extend Validity{% else %}Pay & Subscribe{% endif %}';
+                }
+            },
+            "theme": {
+                "color": "#2563eb"
+            }
+        };
+
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            document.getElementById('loading-overlay').style.display = 'none';
+            alert('Payment failed: ' + response.error.description);
+        });
+
+        // Update button to show loading
+        document.getElementById('pay-btn').disabled = true;
+        document.getElementById('pay-btn').innerHTML =
+            '<i class="fas fa-spinner fa-spin me-2"></i>Opening Payment Window...';
+
+        rzp1.open();
+    };
+</script>
+{% endif %}
+
+<!-- Full-screen loading overlay shown after payment success -->
+<div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(37, 99, 235, 0.92); z-index:9999; flex-direction:column;
+     align-items:center; justify-content:center; color:white;">
+    <i class="fas fa-check-circle fa-4x mb-4" style="animation: pulse 1s infinite;"></i>
+    <h3 class="fw-bold mb-2">{% if is_renewal %}Subscription Extended!{% else %}Subscription Activated!{% endif %} 🎉</h3>
+    <p class="mb-4" style="opacity:0.8;">Redirecting you to your dashboard...</p>
+    <div class="spinner-border text-white" style="width:2.5rem; height:2.5rem;" role="status"></div>
+</div>
+
+<style>
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.12); opacity: 0.8; }
+    }
+</style>
+
+{% endblock %}

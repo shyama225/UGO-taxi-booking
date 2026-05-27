@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo Driver</a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <h2 class="fw-bold mb-4"><i class="fas fa-user me-2"></i>My Profile</h2>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm text-center">
+                <div class="card-body">
+                    {% if request.user.profile_pic %}
+                    <img src="{{ request.user.profile_pic.url }}" alt="Profile Picture" class="profile-pic mb-3">
+                    {% else %}
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                        style="width: 150px; height: 150px;">
+                        <i class="fas fa-user fa-4x text-white"></i>
+                    </div>
+                    {% endif %}
+                    <h4 class="fw-bold">{{ request.user.username }}</h4>
+                    <p class="text-muted">{{ request.user.email }}</p>
+                    <span class="badge bg-primary mb-3">Active Driver</span>
+
+                    {% if request.user.taxi %}
+                    <div class="text-start mt-4">
+                        <h6 class="fw-bold"><i class="fas fa-car me-2"></i>Vehicle Info</h6>
+                        <hr>
+                        <p class="mb-1"><strong>Model:</strong> {{ request.user.taxi.model_name }}</p>
+                        <p class="mb-1"><strong>Plate:</strong> {{ request.user.taxi.plate_number }}</p>
+                        <p class="mb-1"><strong>Type:</strong> {{ request.user.taxi.get_taxi_type_display }}</p>
+                        <p class="mb-0"><strong>Color:</strong> {{ request.user.taxi.color }}</p>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning mt-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        You haven't added your vehicle yet.
+                    </div>
+                    <a href="{% url 'driver_add_taxi' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add Vehicle
+                    </a>
+                    {% endif %}
+                    
+                    {% if subscription %}
+                    <div class="text-start mt-4">
+                        <h6 class="fw-bold"><i class="fas fa-credit-card me-2"></i>Subscription Plan</h6>
+                        <hr>
+                        <p class="mb-1"><strong>Plan:</strong> {{ subscription.plan.name }}</p>
+                        <p class="mb-1"><strong>Expires:</strong> {{ subscription.end_date }}</p>
+                        <p class="mb-1">
+                            <strong>Status:</strong> 
+                            {% if subscription.is_expired %}
+                                <span class="badge bg-danger">Expired</span>
+                            {% else %}
+                                <span class="badge bg-primary">Active</span>
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'driver_subscription_plans' %}" class="btn btn-outline-primary btn-sm w-100 mt-2">
+                            <i class="fas fa-sync-alt me-1"></i>Renew / Change
+                        </a>
+                        <a href="{% url 'driver_subscription_history' %}" class="btn btn-outline-secondary btn-sm w-100 mt-2">
+                            <i class="fas fa-history me-1"></i>View History
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-edit me-2"></i>Edit Profile</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'driver_update_profile' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Email</label>
+                            <input type="email" class="form-control" name="email" value="{{ request.user.email }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone" value="{{ request.user.phone_number }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">UPI ID</label>
+                            <input type="text" class="form-control" name="upi_id" value="{{ request.user.driver_profile.upi_id|default:'' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Profile Picture</label>
+                            <input type="file" class="form-control" name="profile_pic" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

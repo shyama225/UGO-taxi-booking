@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563EB, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo</a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <h2 class="fw-bold mb-4"><i class="fas fa-history me-2"></i>Ride History</h2>
+    
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Date</th>
+                            <th>Pickup</th>
+                            <th>Dropoff</th>
+                            <th>Driver</th>
+                            <th>Fare</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Rating</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in rides %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ ride.completed_at|date:"M d, Y" }}</td>
+                            <td>{{ ride.pickup_location|truncatechars:15 }}</td>
+                            <td>{{ ride.drop_address|truncatechars:15 }}</td>
+                            <td>{{ ride.driver.username|default:"-" }}</td>
+                            <td>₹{{ ride.actual_fare|default:ride.estimated_fare }}</td>
+                            <td>
+                                {% with method=ride.payments.first.payment_method %}
+                                    {% if method == 'razorpay' %}
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.8rem;">
+                                            <i class="fas fa-globe me-1"></i>Online
+                                        </span>
+                                    {% elif method == 'cash' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.8rem;">
+                                            <i class="fas fa-hand-holding-usd me-1"></i>Cash
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted small">—</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ ride.status }}">{{ ride.status }}</span>
+                            </td>
+                            <td>
+                                {% if ride.ratings.exists %}
+                                    <div class="text-warning">
+                                        {% with rating=ride.ratings.first.rating %}
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted small">Not Rated</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not ride.ratings.exists %}
+                                <a href="{% url 'user_rate_driver' ride.id %}" class="btn btn-sm btn-outline-warning">
+                                    <i class="fas fa-star"></i> Rate
+                                </a>
+                                {% else %}
+                                <span class="text-success"><i class="fas fa-check-circle"></i> Done</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5">
+                                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-0">No completed rides yet</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

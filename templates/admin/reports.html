@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4 min-vh-100" style="background: #f8fafc;">
+    <div class="mb-4">
+        <h2 class="fw-bold text-dark mb-1">Reports & Analytics</h2>
+        <p class="text-muted">Generate and download platform data in CSV or PDF format.</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Users Report -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-users me-2"></i>User Reports</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{% url 'admin_download_report' 'users' %}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">From Date</label>
+                                <input type="date" name="date_from" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">To Date</label>
+                                <input type="date" name="date_to" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Status</label>
+                                <select name="status" class="form-select form-select-sm border-light bg-light">
+                                    <option value="">All Statuses</option>
+                                    <option value="active">Active Only</option>
+                                    <option value="inactive">Inactive Only</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Report Format</label>
+                                <select name="format" class="form-select form-select-sm border-light bg-light">
+                                    <option value="csv">CSV (Spreadsheet)</option>
+                                    <option value="pdf">PDF (Document)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4 py-2 fw-bold" style="border-radius: 12px;">
+                            <i class="fas fa-download me-2"></i>Download User Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drivers Report -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-id-card me-2"></i>Driver Reports</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{% url 'admin_download_report' 'drivers' %}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">From Date</label>
+                                <input type="date" name="date_from" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">To Date</label>
+                                <input type="date" name="date_to" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Verification Status</label>
+                                <select name="status" class="form-select form-select-sm border-light bg-light">
+                                    <option value="">All Drivers</option>
+                                    <option value="pending">Pending Approval</option>
+                                    <option value="approved">Approved Partners</option>
+                                    <option value="rejected">Rejected Apps</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Report Format</label>
+                                <select name="format" class="form-select form-select-sm border-light bg-light">
+                                    <option value="csv">CSV (Spreadsheet)</option>
+                                    <option value="pdf">PDF (Document)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mt-4 py-2 fw-bold" style="border-radius: 12px;">
+                            <i class="fas fa-download me-2"></i>Download Driver Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rides Report -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0 text-warning"><i class="fas fa-route me-2"></i>Ride Activity Reports</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{% url 'admin_download_report' 'rides' %}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">From Date</label>
+                                <input type="date" name="date_from" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">To Date</label>
+                                <input type="date" name="date_to" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Ride Status</label>
+                                <select name="status" class="form-select form-select-sm border-light bg-light">
+                                    <option value="">All Rides</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="requested">Requested</option>
+                                    <option value="in_progress">Ongoing</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Report Format</label>
+                                <select name="format" class="form-select form-select-sm border-light bg-light">
+                                    <option value="csv">CSV (Spreadsheet)</option>
+                                    <option value="pdf">PDF (Document)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 mt-4 py-2 fw-bold text-dark" style="border-radius: 12px;">
+                            <i class="fas fa-download me-2"></i>Download Ride Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Report -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h5 class="fw-bold mb-0 text-info"><i class="fas fa-wallet me-2"></i>Financial Reports</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{% url 'admin_download_report' 'payments' %}" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">From Date</label>
+                                <input type="date" name="date_from" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">To Date</label>
+                                <input type="date" name="date_to" class="form-control form-control-sm border-light bg-light">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Payment Status</label>
+                                <select name="status" class="form-select form-select-sm border-light bg-light">
+                                    <option value="">All Payments</option>
+                                    <option value="completed">Successful</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="failed">Failed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="extra-small fw-bold text-uppercase text-muted mb-2">Report Format</label>
+                                <select name="format" class="form-select form-select-sm border-light bg-light">
+                                    <option value="csv">CSV (Spreadsheet)</option>
+                                    <option value="pdf">PDF (Document)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-info w-100 mt-4 py-2 fw-bold text-white" style="border-radius: 12px;">
+                            <i class="fas fa-download me-2"></i>Download Payment Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .extra-small { font-size: 0.75rem; letter-spacing: 0.5px; }
+    .form-control:focus, .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+    }
+</style>
+{% endblock %}

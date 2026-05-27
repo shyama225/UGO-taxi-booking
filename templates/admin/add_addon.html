@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="mb-5 text-center">
+        <nav aria-label="breadcrumb" class="d-flex justify-content-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item small fw-bold text-uppercase"><a href="{% url 'admin_manage_addons' %}" class="text-decoration-none text-primary">Add-Ons</a></li>
+                <li class="breadcrumb-item active small fw-bold text-uppercase" aria-current="page">New Package</li>
+            </ol>
+        </nav>
+        <h1 class="fw-bold text-dark mb-1" style="font-size: 1.75rem;">Create Ride Boost</h1>
+        <p class="text-muted mb-0">Design a temporary ride quota package for high-demand periods.</p>
+    </div>
+    
+    <div class="card border-0 shadow-lg mx-auto" style="border-radius: 20px; max-width: 600px;">
+        <div class="card-body p-4">
+            <form action="{% url 'admin_add_addon' %}" method="POST">
+                {% csrf_token %}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Package Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="fas fa-bolt text-muted small"></i></span>
+                            <input type="text" name="name" class="form-control bg-light border-0" placeholder="e.g. Daily Power Boost" required>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Purchase Price (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0">₹</span>
+                            <input type="number" name="price" step="0.01" class="form-control bg-light border-0" placeholder="49.00" required>
+                        </div>
+                    </div>
+                    
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Bonus KM Quota</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="fas fa-road text-muted small"></i></span>
+                            <input type="number" name="km_limit" class="form-control bg-light border-0" placeholder="50" min="0" value="0" required>
+                            <span class="input-group-text bg-light border-0 text-muted small">km</span>
+                        </div>
+                        <div class="form-text text-muted">Extra kilometers added on top of daily limit</div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Expiration (Days)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="fas fa-clock text-muted small"></i></span>
+                            <input type="number" name="validity_days" value="1" min="1" class="form-control bg-light border-0" required>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Marketing Copy</label>
+                        <textarea name="description" rows="3" class="form-control bg-light border-0" placeholder="Briefly explain the benefit of this add-on to the driver..."></textarea>
+                    </div>
+                </div>
+                
+                <hr class="my-4 opacity-10">
+                
+                <div class="d-flex justify-content-end gap-3">
+                    <a href="{% url 'admin_manage_addons' %}" class="btn btn-light px-4 rounded-3 fw-bold">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4 rounded-3 fw-bold shadow-sm">
+                        <i class="fas fa-magic me-2"></i>Create Package
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

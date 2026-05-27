@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block public_content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - UGo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563EB;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        .login-image {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .login-image h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        
+        .login-form {
+            padding: 60px 40px;
+        }
+        
+        .form-control {
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            padding: 14px 18px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        }
+        
+        .input-group-text {
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            border-right: none;
+            background: white;
+            padding: 14px 18px;
+        }
+        
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .input-group .input-group-text {
+            border-radius: 12px 0 0 12px;
+        }
+        
+        .btn-login {
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .brand-logo {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+        }
+        
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+        
+        .divider span {
+            padding: 0 16px;
+            color: #6b7280;
+        }
+        
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e5e7eb;
+            background: white;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .social-btn:hover {
+            border-color: var(--primary-color);
+            background: #f0f9ff;
+        }
+        
+        @media (max-width: 768px) {
+            .login-card {
+                margin: 20px;
+            }
+            
+            .login-image {
+                padding: 40px 30px;
+            }
+            
+            .login-form {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="login-card">
+                    <div class="row g-0">
+                        <div class="col-lg-5 d-none d-lg-block">
+                            <div class="login-image h-100">
+                                <div class="brand-logo">
+                                    <i class="fas fa-car-side"></i>
+                                </div>
+                                <h2>Welcome Back!</h2>
+                                <p class="lead">Sign in to continue your journey with UGo</p>
+                                <div class="mt-4">
+                                    <i class="fas fa-map-marker-alt fa-3x mb-3 opacity-75"></i>
+                                    <p>Safe rides at your doorstep</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="login-form">
+                                <div class="text-center mb-4">
+                                    <h3 class="fw-bold">Sign In</h3>
+                                    <p class="text-muted">Enter your credentials to access your account</p>
+                                </div>
+                                
+                                {% if success %}
+                                <div class="alert alert-success" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i>{{ success }}
+                                </div>
+                                {% endif %}
+                                
+                                {% if error %}
+                                <div class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+                                </div>
+                                {% endif %}
+                                
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <div class="mb-4">
+                                        <label class="form-label fw-medium mb-2">Username</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input type="text" class="form-control" name="username" placeholder="Enter your username" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="form-label fw-medium mb-2">Password</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                            <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="remember">
+                                            <label class="form-check-label" for="remember">Remember me</label>
+                                        </div>
+                                        <a href="#" class="text-primary text-decoration-none">Forgot password?</a>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary w-100 btn-login">
+                                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                    </button>
+                                </form>
+                                
+                                <div class="divider"><span>or continue with</span></div>
+                                
+                                <div class="d-flex justify-content-center gap-3 mb-4">
+                                    <div class="social-btn"><i class="fab fa-google text-danger"></i></div>
+                                    <div class="social-btn"><i class="fab fa-facebook-f text-primary"></i></div>
+                                    <div class="social-btn"><i class="fab fa-apple"></i></div>
+                                </div>
+                                
+                                <p class="text-center text-muted">
+                                    Don't have an account? 
+                                    <a href="{% url 'signup' %}" class="text-primary text-decoration-none fw-medium">Sign up</a>
+                                </p>
+                                
+                                <p class="text-center mt-4">
+                                    <a href="{% url 'home' %}" class="text-muted text-decoration-none">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to Home
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{% endblock %}
+
+
+
+
+<!-- 

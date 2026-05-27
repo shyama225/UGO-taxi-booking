@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .plan-card {
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        background: white;
+    }
+
+    .plan-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .plan-card.active {
+        border-color: #2563eb;
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .plan-header {
+        padding: 2rem 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    .plan-price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .plan-features {
+        padding: 2rem 1.5rem;
+    }
+
+    .feature-item {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        color: #4B5563;
+    }
+
+    .feature-item i {
+        width: 24px;
+        color: #2563eb;
+        margin-right: 12px;
+    }
+
+    .status-badge-container {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .active-badge {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        padding: 0.5rem 1.25rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+    }
+
+    .cancel-btn-top {
+        border-radius: 9999px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark border-bottom border-light"
+    style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#">
+            <i class="fas fa-car-side me-2"></i>UGo Driver Premium
+        </a>
+    </div>
+</nav>
+
+<div class="p-4 p-lg-5" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Subscription Plans</h2>
+            <p class="text-muted mb-0">Choose a plan that fits your driving schedule</p>
+        </div>
+
+        {% if current_subscription %}
+        <div class="status-badge-container">
+            {% if current_subscription.is_expired %}
+            <span class="active-badge bg-danger" style="background: linear-gradient(135deg, #EF4444, #B91C1C);">
+                <i class="fas fa-exclamation-circle me-2"></i>Expired: {{ current_subscription.plan.name|default:"Deleted Plan" }}
+            </span>
+            {% else %}
+            <span class="active-badge">
+                <i class="fas fa-check-circle me-2"></i>Active: {{ current_subscription.plan.name|default:"General Subscription" }}
+            </span>
+            <form method="POST" action="{% url 'driver_cancel_subscription' %}"
+                onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger cancel-btn-top">
+                    <i class="fas fa-times-circle me-1"></i>Cancel Plan
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
+        {% for plan in plans %}
+        <div class="col-md-6 col-lg-4">
+            <div
+                class="plan-card h-100 {% if current_subscription and current_subscription.plan_id == plan.id %}active{% endif %} shadow-sm">
+
+                <div class="plan-header"
+                    style="background: {% if current_subscription and current_subscription.plan_id == plan.id %}linear-gradient(135deg, #2563eb, #1d4ed8){% else %}linear-gradient(135deg, #64748b, #475569){% endif %};">
+                    <h4 class="fw-bold mb-3">{{ plan.name }}</h4>
+                    <div class="plan-price">₹{{ plan.price }}</div>
+                    <div class="text-white-50 text-uppercase fw-bold small">{{ plan.get_duration_type_display }}</div>
+                </div>
+
+                <div class="plan-features">
+                    <div class="feature-item">
+                        <i class="fas fa-clock"></i>
+                        <span>Validity: <strong>{{ plan.duration_days }} days</strong></span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-road"></i>
+                        <span>Daily KM Limit: <strong>{{ plan.daily_km_limit }} km</strong></span>
+                    </div>
+                </div>
+
+                <div class="p-4 pt-0">
+                    {% if current_subscription and current_subscription.plan_id == plan.id and not current_subscription.is_expired %}
+                    <a href="{% url 'driver_subscribe' plan.id %}" class="btn btn-primary w-100 py-3 fw-bold"
+                        style="border-radius: 12px;">
+                        <i class="fas fa-sync-alt me-2"></i>Renew Current Plan
+                    </a>
+                    {% elif current_subscription and current_subscription.plan_id == plan.id %}
+                    <a href="{% url 'driver_subscribe' plan.id %}"
+                        class="btn btn-warning w-100 py-3 fw-bold"
+                        style="border-radius: 12px;">
+                        <i class="fas fa-sync-alt me-2"></i>Renew Plan
+                    </a>
+                    {% else %}
+                    <a href="{% url 'driver_subscribe' plan.id %}"
+                        class="btn {% if plan.duration_type == 'daily' or plan.price > 500 %}btn-primary{% else %}btn-outline-primary{% endif %} w-100 py-3 fw-bold"
+                        style="border-radius: 12px;">
+                        <i class="fas fa-shopping-cart me-2"></i>Subscribe Now
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center py-5 bg-white shadow-sm" style="border-radius: 20px;">
+                <i class="fas fa-credit-card fa-4x text-muted mb-4"></i>
+                <h4 class="text-muted">No subscription plans available</h4>
+                <p class="text-muted">Please check back later or contact support.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Additional Benefits Footer -->
+    <div class="row mt-5 text-center">
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-bolt fa-2x text-warning mb-3"></i>
+            <h5 class="fw-bold">Instant Activation</h5>
+            <p class="text-muted small">Access your benefits immediately after payment verification.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
+            <h5 class="fw-bold">Secure Payments</h5>
+            <p class="text-muted small">All transactions are encrypted and processed via Razorpay.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <i class="fas fa-headset fa-2x text-primary mb-3"></i>
+            <h5 class="fw-bold">24/7 Support</h5>
+            <p class="text-muted small">Get help anytime if you face issues with your subscription.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

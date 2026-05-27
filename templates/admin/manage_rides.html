@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Ride Management</h1>
+            <p class="text-muted mb-0">Track all ongoing and historic ride transactions across the network.</p>
+        </div>
+        <div class="d-flex gap-3 align-items-center">
+            <div class="dropdown">
+                <button class="btn btn-outline-primary rounded-3 shadow-sm px-4 fw-bold dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="fas fa-download me-2"></i>Download
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
+                    <li><a class="dropdown-item fw-bold" href="{% url 'admin_download_report' 'rides' %}?q={{ query|default:'' }}&status={{ status|default:'' }}&date_from={{ date_filter|default:'' }}&date_to={{ date_filter|default:'' }}">
+                        <i class="fas fa-file-csv me-2 text-primary"></i>CSV Report
+                    </a></li>
+                    <li><a class="dropdown-item fw-bold" href="{% url 'admin_download_report' 'rides' %}?format=pdf{% if query or status %}&q={{ query|default:'' }}&status={{ status|default:'' }}&date_from={{ date_filter|default:'' }}&date_to={{ date_filter|default:'' }}{% endif %}">
+                        <i class="fas fa-file-pdf me-2 text-danger"></i>PDF Document
+                    </a></li>
+                </ul>
+            </div>
+            <form method="GET" class="d-flex gap-2 mb-0">
+                <div class="bg-white p-1 rounded-3 shadow-sm border d-flex gap-1 overflow-hidden">
+                    <input type="text" name="q" class="border-0 px-3 py-1 small" placeholder="Search user..." value="{{ query|default:'' }}" style="outline: none; width: 150px;">
+                    <input type="date" name="date" class="border-0 px-2 small bg-light" value="{{ date_filter|default:'' }}" style="outline: none; border-radius: 4px;">
+                    <select name="status" class="border-0 px-2 small bg-light" style="outline: none; border-radius: 4px;">
+                        <option value="">Status</option>
+                        <option value="requested" {% if status == 'requested' %}selected{% endif %}>Requested</option>
+                        <option value="accepted" {% if status == 'accepted' %}selected{% endif %}>Accepted</option>
+                        <option value="in_progress" {% if status == 'in_progress' %}selected{% endif %}>Ongoing</option>
+                        <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary btn-sm rounded-2 px-3 fw-bold">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    {% if query or status or date_filter %}
+                    <a href="{% url 'admin_manage_rides' %}" class="btn btn-light btn-sm rounded-2 px-2 d-flex align-items-center">
+                        <i class="fas fa-times"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+        <div class="card-body p-0">
+            <div class="table-responsive p-3">
+                <table class="table table-hover align-middle custom-table">
+                    <thead>
+                        <tr>
+                            <th class="border-0 text-muted small text-uppercase fw-bold ps-4">Rider / Driver</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Trip Details</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Fare</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Status</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Requested At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in rides %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex flex-column gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                            <i class="fas fa-user-circle text-primary small"></i>
+                                        </div>
+                                        <span class="fw-bold text-dark small">{{ ride.rider.username }}</span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                            <i class="fas fa-id-badge text-primary small"></i>
+                                        </div>
+                                        <span class="text-muted small">{% if ride.driver %}{{ ride.driver.username }}{% else %}Unassigned{% endif %}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="small text-truncate" style="max-width: 200px;"><i class="fas fa-map-marker-alt text-danger me-1 small"></i>{{ ride.pickup_location }}</span>
+                                    <span class="small text-muted text-truncate" style="max-width: 200px;"><i class="fas fa-flag-checkered text-primary me-1 small"></i>{{ ride.drop_address }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark">₹{{ ride.estimated_fare|default:"0.00" }}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ ride.status }}">{{ ride.status|capfirst }}</span>
+                            </td>
+                            <td class="small text-muted">
+                                {{ ride.requested_at|date:"M d, H:i" }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">Zero rides recorded for this period</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.custom-table tr { transition: all 0.2s; }
+.custom-table tbody tr:hover { background-color: #f8fafc; }
+.status-badge { font-size: 0.7rem; padding: 5px 12px; border-radius: 100px; font-weight: 700; text-transform: uppercase; }
+.status-requested { background: #dbeafe; color: #1e40af; }
+.status-accepted { background: #dbeafe; color: #1e40af; }
+.status-in_progress { background: #fef3c7; color: #92400e; }
+.status-completed { background: #bfdbfe; color: #1e3a8a; }
+.status-cancelled { background: #fee2e2; color: #991b1b; }
+.btn-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; }
+</style>
+
+
+{% endblock %}

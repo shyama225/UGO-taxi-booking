@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563EB, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo</a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <h2 class="fw-bold mb-4"><i class="fas fa-map-marker-alt me-2"></i>Track Your Ride</h2>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Ride Status</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Status Stepper -->
+                    <div class="ride-status-stepper">
+                        <div class="step {% if ride.status != 'requested' %}completed{% elif ride.status == 'requested' %}active{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <small>Requested</small>
+                        </div>
+                        <div class="step {% if ride.status in 'accepted arrived in_progress completed' %}completed{% elif ride.status == 'accepted' %}active{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <small>Accepted</small>
+                        </div>
+                        <div class="step {% if ride.status in 'arrived in_progress completed' %}completed{% elif ride.status == 'arrived' %}active{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-car"></i>
+                            </div>
+                            <small>Arrived</small>
+                        </div>
+                        <div class="step {% if ride.status in 'in_progress completed' %}completed{% elif ride.status == 'in_progress' %}active{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-road"></i>
+                            </div>
+                            <small>In Progress</small>
+                        </div>
+                        <div class="step {% if ride.status == 'completed' %}completed{% endif %}">
+                            <div class="step-icon">
+                                <i class="fas fa-flag-checkered"></i>
+                            </div>
+                            <small>Completed</small>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <span class="status-badge status-{{ ride.status }} px-4 py-2">{{ ride.status|upper }}</span>
+                    </div>
+
+                    {% if ride.status == 'requested' %}
+                        {% if not ride.driver %}
+                        <div class="alert alert-warning border-0 shadow-sm mt-4 text-center py-3" style="border-radius: 12px; background-color: #fff9db;">
+                            <i class="fas fa-search text-warning mb-2 animate-pulse" style="font-size: 1.5rem;"></i>
+                            <p class="mb-0 fw-bold text-dark">Searching for nearby drivers...</p>
+                            <small class="text-muted">Please wait while we find the best match for you.</small>
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info border-0 shadow-sm mt-4 text-center py-3" style="border-radius: 12px; background-color: #e0f2fe;">
+                            <i class="fas fa-car-side text-primary mb-2" style="font-size: 1.5rem;"></i>
+                            <p class="mb-0 fw-bold text-dark">Driver found: {{ ride.driver.username }}!</p>
+                            <small class="text-muted">Waiting for the driver to accept your request...</small>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            
+
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-info-circle me-2"></i>Ride Details</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small">Pickup</label>
+                        <p class="fw-bold mb-0"><i class="fas fa-map-marker-alt text-success me-2"></i>{{ ride.pickup_location }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Dropoff</label>
+                        <p class="fw-bold mb-0"><i class="fas fa-map-marker-alt text-danger me-2"></i>{{ ride.drop_address  }}</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Distance</label>
+                        <p class="fw-bold mb-0">{{ ride.distance_km|default:"--" }} km</p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small">Estimated Fare</label>
+                        <p class="fw-bold mb-0 text-primary">₹{{ ride.estimated_fare|default:"--" }}</p>
+                    </div>
+            </div>
+            <!-- OTP and Cancel button will be moved below Driver Info -->
+
+{% if ride.status == "completed" and not ride.is_paid %}
+<form method="POST">
+    {% csrf_token %}
+    <button name="make_payment" class="btn btn-success">
+        Pay ₹{{ ride.fare }}
+    </button>
+</form>
+{% endif %}
+
+
+
+            
+            {% if ride.driver %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-user me-2"></i>Driver Info</h5>
+                </div>
+                <div class="card-body">
+                    <!-- NEW: OTP moved to the TOP -->
+                    {% if ride.status == "accepted" or ride.status == "arrived" %}
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-center border border-warning border-opacity-25 mb-4">
+                        <div class="text-uppercase small fw-bold text-warning mb-1" style="letter-spacing: 0.1em;">🔐 Ride OTP</div>
+                        <h2 class="fw-bold mb-1 text-dark" style="letter-spacing: 0.2em;">{{ ride.otp|default:"----" }}</h2>
+                        <div class="small text-muted">Share this OTP with your driver to start the journey.</div>
+                    </div>
+                    <hr class="mb-4">
+                    {% endif %}
+
+                    <div class="d-flex align-items-center mb-3">
+                        {% if ride.driver.profile_pic %}
+                        <img src="{{ ride.driver.profile_pic.url }}" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h6 class="fw-bold mb-0">{{ ride.driver.username }}</h6>
+                            <small class="text-muted">{{ ride.driver.phone_number }}</small>
+                        </div>
+                    </div>
+                    {% if ride.driver.taxi %}
+                    <p class="mb-0"><i class="fas fa-car text-primary me-2"></i>{{ ride.driver.taxi.model_name }}</p>
+                    <p class="mb-0"><span class="badge bg-secondary">{{ ride.driver.taxi.plate_number }}</span></p>
+                    {% endif %}
+
+                    {% if ride.status == 'requested' or ride.status == 'accepted' or ride.status == 'arrived' %}
+                    <div class="mt-4">
+                        <a href="{% url 'user_cancel_ride' ride.id %}" 
+                           class="btn btn-outline-danger w-100" 
+                           onclick="return confirm('Are you sure you want to cancel this ride?');">
+                            <i class="fas fa-times me-2"></i>Cancel Ride
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if ride.status == 'completed' %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-check-circle me-2"></i>Ride Complete!</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Your ride has been completed. Please make the payment.</p>
+                    <a href="{% url 'user_payment' ride.id %}" class="btn btn-success w-100">
+                        <i class="fas fa-credit-card me-2"></i>Pay Now - ₹{{ ride.actual_fare|default:ride.estimated_fare }}
+                    </a>
+                </div>
+            {% endif %}
+            <!-- Cancel block moved inside driver info card -->
+        </div>
+    </div>
+</div>
+{% endblock %}

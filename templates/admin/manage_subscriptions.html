@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Driver Subscription Plan</h1>
+            <p class="text-muted mb-0">Subscription models that define partner access levels and daily ride quotas.</p>
+        </div>
+        <div class="d-flex gap-3">
+            <a href="{% url 'admin_add_subscription' %}" class="btn btn-primary rounded-3 shadow-sm px-4 fw-bold">
+                <i class="fas fa-plus me-2"></i>New Plan
+            </a>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        {% for plan in plans %}
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden sub-card" style="border-radius: 24px;">
+                <div class="card-header border-0 bg-primary bg-opacity-10 p-4 text-center">
+                    <h5 class="fw-bold text-primary mb-0">{{ plan.name }}</h5>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-baseline justify-content-center">
+                            <span class="h4 fw-bold text-slate-400 me-1">₹</span>
+                            <span class="display-6 fw-bold text-dark">{{ plan.price }}</span>
+                            <span class="text-muted small ms-1">/ {{ plan.duration_days }}d</span>
+                        </div>
+                        <span class="badge bg-slate-100 text-slate-600 rounded-pill px-3 py-1 fw-bold small mt-2">{{ plan.get_duration_type_display|upper }}</span>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="d-flex align-items-center gap-2 p-2 bg-light rounded-3">
+                            <div class="bg-white p-1 rounded-circle shadow-sm" style="width: 28px; height: 28px;">
+                                <i class="fas fa-road text-primary small"></i>
+                            </div>
+                            <span class="small fw-bold text-dark">{{ plan.daily_km_limit }} KM / day</span>
+                        </div>
+                        <p class="small text-muted mb-0 line-clamp-2" style="height: 3em;">{{ plan.description }}</p>
+                    </div>
+                    
+                    <div class="d-flex flex-column gap-2 mt-auto">
+                        <a href="{% url 'admin_edit_subscription' plan.id %}" class="btn btn-primary w-100 rounded-pill fw-bold small py-2">
+                            <i class="fas fa-edit me-2"></i>Edit Plan
+                        </a>
+                        <a href="{% url 'admin_delete_subscription' plan.id %}" class="btn btn-outline-danger w-100 rounded-pill fw-bold small py-2" onclick="return confirm('Delete this plan? Existing subscribers will remain active.');">
+                            <i class="fas fa-trash-alt me-2"></i>Remove Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="opacity-25 mb-3"><i class="fas fa-credit-card fa-4x"></i></div>
+            <p class="text-muted">No subscription tiers defined. Drivers will have restricted access.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+.sub-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.sub-card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1) !important; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+</style>
+{% endblock %}

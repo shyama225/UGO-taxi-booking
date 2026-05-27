@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc; font-family: 'Inter', sans-serif;">
+    <!-- System Messages -->
+    {% if messages %}
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4 small fw-bold rounded-4 shadow-sm" role="alert">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Header Section -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-11">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+                <div class="d-flex align-items-start gap-4">
+                    <a href="{% url 'admin_manage_drivers' %}" class="btn btn-white shadow-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+                        <i class="fas fa-arrow-left text-slate-600"></i>
+                    </a>
+                    <div>
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <h1 class="fw-bold text-slate-900 mb-0" style="font-size: 2.25rem; letter-spacing: -0.025em;">{{ driver.username }}</h1>
+                            {% if driver_profile.verification_status == 'pending' %}
+                                <span class="badge bg-amber-100 text-amber-700 px-3 py-2 rounded-pill small fw-bold border border-amber-200"><i class="fas fa-clock me-1"></i>PENDING APPROVAL</span>
+                            {% elif driver_profile.verification_status == 'approved' %}
+                                <span class="badge bg-blue-100 text-blue-700 px-3 py-2 rounded-pill small fw-bold border border-blue-200"><i class="fas fa-check-circle me-1"></i>VERIFIED PARTNER</span>
+                            {% elif driver_profile.verification_status == 'rejected' %}
+                                <span class="badge bg-rose-100 text-rose-700 px-3 py-2 rounded-pill small fw-bold border border-rose-200"><i class="fas fa-times-circle me-1"></i>REJECTED</span>
+                            {% endif %}
+                        </div>
+                        <nav aria-label="breadcrumb" class="mt-2 text-slate-500 fw-medium">
+                            <i class="fas fa-id-card-clip me-1 small"></i> Partner ID: #DRV-{{ driver.id|stringformat:"04d" }} &bull; Joined {{ driver.created_at|date:"M d, Y" }}
+                        </nav>
+                    </div>
+                </div>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'admin_delete_driver' driver.id %}" class="btn btn-rose-600 text-white rounded-3 fw-bold px-4 shadow-sm border-0 d-flex align-items-center" onclick="return confirm('Permanently remove this partner?');">
+                        <i class="fas fa-user-xmark me-2"></i> Terminate Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <!-- Sidebar: Profile & Actions -->
+        <div class="col-lg-4 col-xl-3">
+            <div class="card border-0 shadow-sm mb-4 overflow-hidden" style="border-radius: 28px;">
+                <div class="card-body p-0">
+                    <div class="p-5 text-center" style="background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);">
+                        <div class="position-relative d-inline-block">
+                            {% if driver.profile_pic %}
+                            <img src="{{ driver.profile_pic.url }}" class="rounded-circle shadow-xl border border-white border-4" style="width: 140px; height: 140px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-xl border border-white border-4" style="width: 140px; height: 140px;">
+                                <i class="fas fa-user text-blue-500 fs-1"></i>
+                            </div>
+                            {% endif %}
+                            <div class="position-absolute bottom-0 end-0 bg-blue-500 border border-white border-4 rounded-circle" style="width: 32px; height: 32px;" title="Online"></div>
+                        </div>
+                        <h4 class="fw-bold text-slate-900 mt-4 mb-1">{{ driver.get_full_name|default:driver.username }}</h4>
+                        <span class="text-slate-500 fw-bold small text-uppercase">Active Partner</span>
+                    </div>
+                    
+                    <div class="p-4 bg-white">
+                        <div class="row g-2 mb-4">
+                            <div class="col-6 text-center">
+                                <div class="p-3 bg-slate-50 rounded-4 border">
+                                    <span class="d-block text-slate-400 small fw-bold text-uppercase mb-1">Rides</span>
+                                    <span class="h4 fw-bold text-slate-900 mb-0">{{ driver_profile.total_rides|default:0 }}</span>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div class="p-3 bg-slate-50 rounded-4 border">
+                                    <span class="d-block text-slate-400 small fw-bold text-uppercase mb-1">Rating</span>
+                                    <span class="h4 fw-bold text-slate-900 mb-0">{{ driver_profile.average_rating|default:"0.0" }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Verification Actions -->
+                        {% if driver_profile.verification_status == 'pending' %}
+                        <div class="mb-5">
+                            <label class="small fw-bold text-slate-400 text-uppercase mb-3 d-block">Verification Review</label>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'admin_approve_driver' driver.id %}" class="btn btn-blue-600 text-white rounded-3 fw-bold py-2 shadow-sm">
+                                    <i class="fas fa-check-circle me-2 text-white"></i> Approve Credentials
+                                </a>
+                                <a href="{% url 'admin_reject_driver' driver.id %}" class="btn btn-outline-rose text-rose-600 rounded-3 fw-bold py-2">
+                                    <i class="fas fa-times-circle me-2"></i> Reject Application
+                                </a>
+                            </div>
+                        </div>
+                        {% elif driver_profile.verification_status == 'approved' %}
+                        <div class="mb-5">
+                            <label class="small fw-bold text-slate-400 text-uppercase mb-3 d-block">Notifications</label>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'admin_send_approval_email' driver.id %}" class="btn btn-indigo-600 text-white rounded-3 fw-bold py-2 shadow-sm border-0">
+                                    <i class="fas fa-paper-plane me-2"></i> Send Welcome Email
+                                </a>
+                            </div>
+                        </div>
+                        {% elif driver_profile.verification_status == 'rejected' %}
+                        <div class="mb-5">
+                            <label class="small fw-bold text-slate-400 text-uppercase mb-3 d-block">Notifications</label>
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'admin_send_rejection_email' driver.id %}" class="btn btn-rose-600 text-white rounded-3 fw-bold py-2 shadow-sm border-0">
+                                    <i class="fas fa-paper-plane me-2"></i> Send Rejection Email
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <label class="small fw-bold text-slate-400 text-uppercase mb-3 d-block">Contact Info</label>
+                        <ul class="list-unstyled mb-0">
+                            <li class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bg-slate-100 p-2 rounded-3 text-slate-500"><i class="fas fa-envelope fs-6"></i></div>
+                                <div class="overflow-hidden">
+                                    <span class="fw-bold text-slate-700 small d-block overflow-hidden text-nowrap" style="text-overflow: ellipsis;">{{ driver.email }}</span>
+                                </div>
+                            </li>
+                            <li class="d-flex align-items-center gap-3 mb-3">
+                                <div class="bg-slate-100 p-2 rounded-3 text-slate-500"><i class="fas fa-phone fs-6"></i></div>
+                                <span class="fw-bold text-slate-700 small">{{ driver.phone_number }}</span>
+                            </li>
+                            <li class="d-flex align-items-center gap-3">
+                                <div class="bg-slate-100 p-2 rounded-3 text-slate-500"><i class="fas fa-money-bill-transfer fs-6"></i></div>
+                                <span class="fw-bold text-slate-700 small">{{ driver_profile.upi_id|default:"No UPI ID Provided" }}</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content: Detailed Info -->
+        <div class="col-lg-7 col-xl-8">
+            <!-- Quotas & Financials -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 28px; {% if not driver.subscription %}background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);{% endif %}">
+                        <div class="card-header border-0 p-4 pb-0 d-flex justify-content-between align-items-center" style="background: transparent;">
+                            <h6 class="fw-bold mb-0 {% if driver.subscription %}text-slate-900{% else %}text-white{% endif %}"><i class="fas fa-rocket {% if driver.subscription %}text-indigo-500{% else %}text-white opacity-75{% endif %} me-2"></i> Subscription Status</h6>
+                            {% if driver.subscription %}
+                            <span class="badge bg-blue-100 text-blue-700 rounded-pill px-3 py-1 fw-bold border border-blue-200">ACTIVE</span>
+                            {% else %}
+                            <span class="badge rounded-pill px-3 py-1 fw-bold border border-white border-opacity-25 text-white" style="background: rgba(255,255,255,0.15);">NO PLAN</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-body p-4">
+                            {% if driver.subscription %}
+                            <div class="text-center mb-4 p-4 bg-slate-50 rounded-4 border border-dashed">
+                                <h3 class="fw-bold text-slate-900 mb-1">{{ driver.subscription.plan.name }}</h3>
+                                <p class="text-slate-500 small mb-0 fw-medium">Valid until {{ driver.subscription.end_date|date:"F d, Y" }}</p>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <div class="p-2 bg-sky-50 rounded-3 text-sky-600"><i class="fas fa-road small"></i></div>
+                                        <div>
+                                            <span class="d-block text-slate-400 extra-small fw-bold text-uppercase">KM Quota</span>
+                                            <span class="fw-bold text-slate-700">{{ driver.subscription.km_used_today|floatformat:1 }}/{{ driver.subscription.plan.daily_km_limit }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="progress rounded-pill shadow-inner" style="height: 6px; background: #e2e8f0;">
+                                        <div class="progress-bar bg-sky-500 rounded-pill transition-all" role="progressbar" style="width: {{ km_usage_percent }}%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <div class="rounded-circle d-inline-flex p-3 mb-3" style="background: rgba(255,255,255,0.2);"><i class="fas fa-crown fs-4 text-white"></i></div>
+                                <p class="text-white opacity-75 small fw-medium mb-0">Free trial active. No subscription limits applied.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 28px; background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="fw-bold text-white mb-0 opacity-75"><i class="fas fa-wallet me-2"></i> Financial Performance</h6>
+                                    <h1 class="display-6 fw-bold text-white mt-4 mb-2">₹{{ total_earnings|floatformat:2 }}</h1>
+                                    <p class="text-white opacity-75 small fw-medium mb-0">Total gross earnings.</p>
+                                </div>
+                                <div class="text-end ps-3 border-start border-white border-opacity-25">
+                                    <h6 class="fw-bold text-white mb-0 opacity-75"><i class="fas fa-road me-2"></i> Range</h6>
+                                    <h1 class="display-6 fw-bold text-white mt-4 mb-2">{{ total_km_traveled|floatformat:1 }}<span class="fs-4 ms-1">km</span></h1>
+                                    <p class="text-white opacity-75 small fw-medium mb-0">Total distance covered.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle & Documents -->
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 28px;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold text-slate-900 mb-0"><i class="fas fa-id-card text-blue-500 me-2"></i> Taxi Details</h6>
+                        {% if taxi %}
+                        <span class="badge bg-slate-100 text-slate-700 px-3 py-1 rounded-pill small fw-bold border">{{ taxi.plate_number }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="row g-4">
+                        {% if taxi %}
+                        <div class="col-md-4">
+                            <div class="p-4 bg-slate-50 rounded-4 border h-100">
+                                <span class="d-block text-slate-400 small fw-bold text-uppercase mb-3">Linked Taxi</span>
+                                <h5 class="fw-bold text-slate-900 mb-2">{{ taxi.model_name }}</h5>
+                                <div class="d-flex flex-column gap-2">
+                                    <span class="small fw-medium text-slate-600"><i class="fas fa-car me-2 opacity-50"></i> {{ taxi.get_taxi_type_display|title }}</span>
+                                    <span class="small fw-medium text-slate-600"><i class="fas fa-palette me-2 opacity-50"></i> {{ taxi.color|title }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="col-md-4">
+                            <div class="p-4 bg-slate-50 rounded-4 border h-100 d-flex flex-column align-items-center justify-content-center text-center">
+                                <i class="fas fa-car text-slate-300 fs-1 mb-3"></i>
+                                <span class="d-block text-slate-500 small fw-bold">No Vehicle Assigned</span>
+                                <a href="{% url 'admin_add_taxi' %}?driver_id={{ driver.id }}" class="btn btn-blue-600 text-white btn-sm rounded-pill px-4 mt-3 border-0 fw-bold shadow-sm">Assign</a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-md-4">
+                            <div class="p-4 bg-slate-50 rounded-4 border h-100">
+                                <span class="d-block text-slate-400 small fw-bold text-uppercase mb-3">Driving License</span>
+                                {% if driver_profile.license_card %}
+                                <div class="position-relative group">
+                                    <img src="{{ driver_profile.license_card.url }}" class="rounded-3 shadow-sm" style="width: 100%; height: 100px; object-fit: cover;">
+                                    <a href="{{ driver_profile.license_card.url }}" target="_blank" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 text-white rounded-3 opacity-0 group-hover-opacity-100 transition-all text-decoration-none">
+                                        <i class="fas fa-expand-alt"></i>
+                                    </a>
+                                </div>
+                                {% else %}
+                                <div class="bg-white rounded-3 border border-dashed d-flex align-items-center justify-content-center" style="height: 100px;">
+                                    <span class="text-slate-400 small italic">Missing</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="p-4 bg-slate-50 rounded-4 border h-100">
+                                <span class="d-block text-slate-400 small fw-bold text-uppercase mb-3">Vehicle RC</span>
+                                {% if driver_profile.rc_book %}
+                                <div class="position-relative group">
+                                    <img src="{{ driver_profile.rc_book.url }}" class="rounded-3 shadow-sm" style="width: 100%; height: 100px; object-fit: cover;">
+                                    <a href="{{ driver_profile.rc_book.url }}" target="_blank" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 text-white rounded-3 opacity-0 group-hover-opacity-100 transition-all text-decoration-none">
+                                        <i class="fas fa-expand-alt"></i>
+                                    </a>
+                                </div>
+                                {% else %}
+                                <div class="bg-white rounded-3 border border-dashed d-flex align-items-center justify-content-center" style="height: 100px;">
+                                    <span class="text-slate-400 small italic">Missing</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Table -->
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 28px;">
+                <div class="card-header bg-white border-0 p-4 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold text-slate-900 mb-0"><i class="fas fa-clock-rotate-left text-indigo-500 me-2"></i> Recent Ride Logs</h6>
+                    <span class="text-slate-400 small fw-medium">Last 10 sessions</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-slate-50">
+                            <tr class="small text-uppercase text-slate-400 fw-bold">
+                                <th class="border-0 ps-4 py-3">Rider Identity</th>
+                                <th class="border-0 py-3">Timestamp</th>
+                                <th class="border-0 py-3">Settled Fare</th>
+                                <th class="border-0 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-0">
+                            {% for ride in recent_rides %}
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-indigo-100 text-indigo-600 rounded-circle d-flex align-items-center justify-content-center fw-bold small" style="width: 34px; height: 34px;">
+                                            {{ ride.rider.username|slice:":1"|upper }}
+                                        </div>
+                                        <div>
+                                            <span class="fw-bold text-slate-700 d-block small">{{ ride.rider.get_full_name|default:ride.rider.username }}</span>
+                                            <span class="text-slate-400 extra-small">#RD-{{ ride.id|stringformat:"04d" }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-slate-600 small">{{ ride.requested_at|date:"M d" }}</span>
+                                        <span class="text-slate-400 extra-small">{{ ride.requested_at|date:"h:i A" }}</span>
+                                    </div>
+                                </td>
+                                <td class="py-3">
+                                    <span class="fw-bold text-slate-900 small">₹{{ ride.final_fare|default:ride.estimated_fare|default:"0.00" }}</span>
+                                </td>
+                                <td class="py-3">
+                                    {% if ride.status == 'completed' %}
+                                        <span class="badge bg-blue-50 text-blue-600 rounded-pill px-3 py-1 extra-small fw-bold border border-blue-100">COMPLETED</span>
+                                    {% elif ride.status == 'cancelled' %}
+                                        <span class="badge bg-rose-50 text-rose-600 rounded-pill px-3 py-1 extra-small fw-bold border border-rose-100">CANCELLED</span>
+                                    {% else %}
+                                        <span class="badge bg-indigo-50 text-indigo-600 rounded-pill px-3 py-1 extra-small fw-bold border border-indigo-100">{{ ride.status|upper }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-slate-400 small italic">No ride logs available for this partner.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.extra-small { font-size: 0.65rem; }
+.display-6 { font-size: 2.5rem; letter-spacing: -0.05em; }
+
+/* Tailwind-like Color Palette */
+.text-slate-400 { color: #94a3b8; }
+.text-slate-500 { color: #64748b; }
+.text-slate-600 { color: #475569; }
+.text-slate-700 { color: #334155; }
+.text-slate-900 { color: #0f172a; }
+.bg-slate-50 { background-color: #f8fafc; }
+.bg-slate-100 { background-color: #f1f5f9; }
+
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-blue-100 { background-color: #dbeafe; }
+.text-blue-500 { color: #3b82f6; }
+.text-blue-600 { color: #2563eb; }
+.text-blue-700 { color: #1d4ed8; }
+.btn-blue-600 { background-color: #2563eb; }
+.border-blue-100 { border-color: #dbeafe; }
+.border-blue-200 { border-color: #bfdbfe; }
+
+.bg-amber-100 { background-color: #fef3c7; }
+.text-amber-700 { color: #b45309; }
+
+.bg-rose-50 { background-color: #fff1f2; }
+.bg-rose-100 { background-color: #ffe4e6; }
+.text-rose-600 { color: #e11d48; }
+.text-rose-700 { color: #be123c; }
+.btn-rose-600 { background-color: #e11d48; }
+.btn-outline-rose { border: 1px solid #e11d48; color: #e11d48; }
+.btn-outline-rose:hover { background-color: #e11d48; color: #fff; }
+
+.bg-indigo-50 { background-color: #eef2ff; }
+.bg-indigo-100 { background-color: #e0e7ff; }
+.text-indigo-600 { color: #4f46e5; }
+.btn-indigo-600 { background-color: #4f46e5; }
+.btn-outline-indigo { border: 1px solid #4f46e5; color: #4f46e5; }
+
+/* Static buttons — no color change on hover, active, or focus */
+.btn-indigo-600,
+.btn-indigo-600:hover,
+.btn-indigo-600:active,
+.btn-indigo-600:focus,
+.btn-indigo-600:focus-visible {
+    background-color: #4f46e5 !important;
+    color: #ffffff !important;
+    border-color: #4f46e5 !important;
+    box-shadow: none !important;
+}
+
+.btn-blue-600,
+.btn-blue-600:hover,
+.btn-blue-600:active,
+.btn-blue-600:focus,
+.btn-blue-600:focus-visible {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    border-color: #2563eb !important;
+    box-shadow: none !important;
+}
+
+.btn-rose-600,
+.btn-rose-600:hover,
+.btn-rose-600:active,
+.btn-rose-600:focus,
+.btn-rose-600:focus-visible {
+    background-color: #e11d48 !important;
+    color: #ffffff !important;
+    border-color: #e11d48 !important;
+    box-shadow: none !important;
+}
+
+.bg-sky-50 { background-color: #f0f9ff; }
+.text-sky-600 { color: #0284c7; }
+
+.group:hover .group-hover-opacity-100 { opacity: 1 !important; }
+.transition-all { transition: all 0.3s ease; }
+
+.shadow-xl { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+
+.breadcrumb-item + .breadcrumb-item::before { content: "•"; color: #cbd5e1; }
+</style>
+{% endblock %}

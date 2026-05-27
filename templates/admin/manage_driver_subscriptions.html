@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 min-vh-100" style="background: #f8fafc;">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold text-slate-800 mb-1" style="font-size: 1.75rem;">Driver Partnerships</h1>
+            <p class="text-muted mb-0">Overview of active subscription cycles and partner availability.</p>
+        </div>
+    </div>
+    
+    <div class="card border-0 shadow-sm" style="border-radius: 24px;">
+        <div class="card-body p-0">
+            <div class="table-responsive p-3">
+                <table class="table table-hover align-middle custom-table">
+                    <thead>
+                        <tr>
+                            <th class="border-0 text-muted small text-uppercase fw-bold ps-4">Partner</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Active Tier</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Cycle Ends</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold text-center">KM Load</th>
+                            <th class="border-0 text-muted small text-uppercase fw-bold">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sub in subscriptions %}
+                        <tr>
+                            <td class="ps-4">
+                                <span class="fw-bold text-dark">{{ sub.driver.username }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-indigo-600">{{ sub.plan.name }}</span>
+                            </td>
+                            <td class="text-muted small">
+                                {{ sub.end_date|date:"M d, Y" }}
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center gap-1">
+                                    <span class="fw-bold text-dark">{{ sub.km_used_today|floatformat:1 }}</span>
+                                    <span class="text-muted small">/ {{ sub.plan.daily_km_limit|default:"0" }} km</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if sub.is_expired %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-bold small">EXPIRED</span>
+                                {% elif not sub.is_active %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2 fw-bold small">INACTIVE</span>
+                                {% else %}
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-2 fw-bold small">ACTIVE</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <p class="text-muted">No driver subscriptions active.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.custom-table tr { transition: all 0.2s; }
+.custom-table tbody tr:hover { background-color: #f8fafc; }
+</style>
+{% endblock %}

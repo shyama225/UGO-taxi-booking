@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><i class="fas fa-car-side me-2"></i>UGo Driver</a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <h2 class="fw-bold mb-4"><i class="fas fa-history me-2"></i>Ride History</h2>
+    
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sl No</th>
+                            <th>Rider</th>
+                            <th>Pickup</th>
+                            <th>Dropoff</th>
+                            <th>Fare</th>
+                            <th>Earnings</th>
+                            <th>Date</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ride in rides %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ ride.rider.username }}</td>
+                            <td>{{ ride.pickup_location|truncatechars:15 }}</td>
+                            <td>{{ ride.drop_address|truncatechars:15 }}</td>
+                            <td>₹{{ ride.actual_fare|default:ride.estimated_fare }}</td>
+                            <td class="text-primary fw-bold">₹{{ ride.driver_earning|floatformat:2 }}</td>
+
+                            <td>{{ ride.completed_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% with method=ride.payments.first.payment_method %}
+                                    {% if method == 'razorpay' %}
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                                            <i class="fas fa-globe me-1"></i>Online
+                                        </span>
+                                    {% elif method == 'cash' %}
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="fas fa-hand-holding-usd me-1"></i>Cash
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
+                            <td>
+                                <span class="status-badge status-{{ ride.status }}">{{ ride.status }}</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <i class="fas fa-history fa-2x text-muted mb-3"></i>
+                                <p class="text-muted mb-0">No completed rides yet</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

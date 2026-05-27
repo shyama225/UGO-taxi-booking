@@ -1,0 +1,52 @@
+<div class="col-md-3 col-lg-2 sidebar p-3 d-flex flex-column">
+    <div class="text-center mb-4 pb-3 border-bottom border-light" style="opacity: 0.8;">
+        <a href="{% url 'driver_dashboard' %}" class="text-white text-decoration-none">
+            <h3 class="fw-bold mb-0"><i class="fas fa-car-side me-2"></i>UGo</h3>
+            <small class="text-white-50 text-uppercase tracking-wider">Driver Panel</small>
+        </a>
+    </div>
+
+    <nav class="nav flex-column gap-2 mb-4">
+        <a href="{% url 'driver_dashboard' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'driver_dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+        <a href="{% url 'driver_subscription_plans' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'driver_subscription_plans' %}active{% endif %}">
+            <i class="fas fa-credit-card"></i> Subscription
+        </a>
+        <a href="{% url 'driver_available_addons' %}"
+            class="sidebar-link {% if 'addons' in request.path %}active{% endif %}">
+            <i class="fas fa-plus-circle"></i> Buy Add-Ons
+        </a>
+        <a href="{% url 'driver_ride_history' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'driver_ride_history' %}active{% endif %}">
+            <i class="fas fa-history"></i> Ride History
+        </a>
+        <a href="{% url 'driver_view_ratings' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'driver_view_ratings' %}active{% endif %}">
+            <i class="fas fa-star"></i> My Ratings
+        </a>
+        <a href="{% url 'driver_subscription_history' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'driver_subscription_history' %}active{% endif %}">
+            <i class="fas fa-file-invoice-dollar"></i> Sub History
+        </a>
+        <a href="{% url 'driver_profile' %}" class="sidebar-link {% if request.resolver_match.url_name == 'driver_profile' %}active{% endif %}">
+            <i class="fas fa-user-shield"></i> My Profile
+        </a>
+        <a href="{% url 'logout' %}" class="sidebar-link text-danger logout-link mt-2">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </nav>
+</div>
+
+<style>
+    .sidebar-link.text-danger:hover {
+        background-color: rgba(220, 38, 38, 0.1) !important;
+        color: #ef4444 !important;
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+</style>

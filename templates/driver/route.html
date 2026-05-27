@@ -1,0 +1,84 @@
+<!-- {% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<h3>Ride Map</h3>
+
+<div id="map" style="height:500px;"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+var pickup_lat = {{ active_ride.pickup_lat|default:0 }};
+var pickup_lng = {{ active_ride.pickup_lng|default:0 }};
+var drop_lat = {{ active_ride.drop_lat|default:0 }};
+var drop_lng = {{ active_ride.drop_lng|default:0 }};
+
+
+var map = L.map('map').setView([pickup_lat, pickup_lng], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap contributors'
+}).addTo(map);
+
+var pickupMarker = L.marker([pickup_lat, pickup_lng]).addTo(map)
+.bindPopup("Pickup Location").openPopup();
+
+var dropMarker = L.marker([drop_lat, drop_lng]).addTo(map)
+.bindPopup("Drop Location");
+
+</script>
+
+{% endblock %} -->
+{% extends 'base.html' %}
+{% block content %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<h3>Ride Map</h3>
+
+<div id="map" style="height:500px;"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+
+var pickup_lat = Number("{{ active_ride.pickup_lat|default:'0' }}");
+var pickup_lng = Number("{{ active_ride.pickup_lng|default:'0' }}");
+var drop_lat = Number("{{ active_ride.drop_lat|default:'0' }}");
+var drop_lng = Number("{{ active_ride.drop_lng|default:'0' }}");
+
+console.log(pickup_lat, pickup_lng, drop_lat, drop_lng);
+
+// Create map
+var map = L.map('map').setView([pickup_lat, pickup_lng], 13);
+
+// Map tiles
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© OpenStreetMap contributors'
+}).addTo(map);
+
+// Pickup marker
+var pickupMarker = L.marker([pickup_lat, pickup_lng])
+.addTo(map)
+.bindPopup("Pickup Location")
+.openPopup();
+
+// Drop marker
+var dropMarker = L.marker([drop_lat, drop_lng])
+.addTo(map)
+.bindPopup("Drop Location");
+
+// Draw route line
+var route = L.polyline([
+    [pickup_lat, pickup_lng],
+    [drop_lat, drop_lng]
+]).addTo(map);
+
+// Zoom map to fit markers
+map.fitBounds(route.getBounds());
+
+</script>
+
+{% endblock %}

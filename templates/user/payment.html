@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #2563EB, #1d4ed8);">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-car-side me-2"></i>UGo
+        </a>
+    </div>
+</nav>
+
+<div class="p-4" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe); min-height: calc(100vh - 56px);">
+    <h2 class="fw-bold mb-4">
+        <i class="fas fa-credit-card me-2"></i>Payment
+    </h2>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-9 col-xl-8">
+            <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 16px;">
+                <div class="row g-0">
+                    <!-- Left Column: Ride Summary -->
+                    <div class="col-md-5 bg-light p-4 border-end">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-receipt me-2 text-primary"></i>Ride Summary
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase">Pickup</label>
+                            <p class="mb-0 small text-dark">{{ ride.pickup_location }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold text-uppercase">Dropoff</label>
+                            <p class="mb-0 small text-dark">{{ ride.drop_address }}</p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="small text-muted">Distance:</span>
+                            <span class="small fw-bold">{{ ride.distance_km }} km</span>
+                        </div>
+
+                        {% if ride.driver %}
+                        <div class="mt-4 pt-4 border-top">
+                            <label class="text-muted small fw-bold text-uppercase mb-2 d-block">Driver</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-user-tie text-primary"></i>
+                                <span class="fw-bold">{{ ride.driver.username }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                            <span class="fw-bold">Total Fare</span>
+                            <span class="h4 text-primary fw-bold mb-0">₹{{ ride.actual_fare|default:ride.estimated_fare }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Secure Checkout -->
+                    <div class="col-md-7 p-4 d-flex flex-column justify-content-center">
+                        <div class="text-center mb-4">
+                            <h5 class="fw-bold mb-1">
+                                <i class="fas fa-shield-alt me-2 text-success"></i>Secure Checkout
+                            </h5>
+                            <p class="text-muted small">Complete your payment securely</p>
+                        </div>
+
+                        <form method="POST" action="{% url 'user_payment' ride.id %}" id="payment-form">
+                            {% csrf_token %}
+
+                            <!-- User Identity -->
+                            <div class="mb-4 p-2 border rounded-3 d-flex align-items-center justify-content-between bg-white bg-opacity-50">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-user-circle text-muted"></i>
+                                    <span class="small">Paying as <strong>{{ request.user.phone_number }}</strong></span>
+                                </div>
+                                <i class="fas fa-check-circle text-success small"></i>
+                            </div>
+
+                            <!-- Payment Method Selector -->
+                            <div class="mb-4">
+                                <label class="text-muted small fw-bold text-uppercase mb-3 d-block">Select Payment Method</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="payment_method" id="method_online" value="razorpay" checked autocomplete="off" onchange="togglePaymentMethod()">
+                                        <label class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center gap-1" for="method_online" style="border-radius: 12px; border-width: 2px;">
+                                            <i class="fas fa-globe fs-4"></i>
+                                            <span class="small fw-bold">Online</span>
+                                        </label>
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="radio" class="btn-check" name="payment_method" id="method_offline" value="cash" autocomplete="off" onchange="togglePaymentMethod()">
+                                        <label class="btn btn-outline-success w-100 py-3 d-flex flex-column align-items-center gap-1" for="method_offline" style="border-radius: 12px; border-width: 2px;">
+                                            <i class="fas fa-hand-holding-usd fs-4"></i>
+                                            <span class="small fw-bold">Cash</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+                            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id" value="{{ razorpay_order_id }}">
+                            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+
+                            <div id="online-actions">
+                                {% if ride.driver.driver_profile.upi_id %}
+                                <div class="alert border border-primary border-opacity-25 bg-white shadow-sm mb-4 d-flex align-items-center gap-3">
+                                    <div class="bg-primary bg-opacity-10 p-2 rounded-3">
+                                        <i class="fas fa-qrcode text-primary fs-5"></i>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <p class="text-muted extra-small text-uppercase fw-bold mb-0">Driver's UPI ID</p>
+                                        <p class="small fw-bold text-dark mb-0 text-truncate user-select-all">{{ ride.driver.driver_profile.upi_id }}</p>
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-link p-0" onclick="copyToClipboard('{{ ride.driver.driver_profile.upi_id }}')">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if razorpay_order_id %}
+                                <button type="button" class="btn btn-primary btn-lg w-100 shadow-sm" id="pay-btn" style="border-radius: 12px; padding: 12px;">
+                                    <i class="fas fa-lock me-2"></i>Pay Now (Razorpay)
+                                </button>
+                                {% else %}
+                                <button type="button" class="btn btn-secondary btn-lg w-100" disabled>
+                                    <i class="fas fa-exclamation-circle me-2"></i>Gateway Unavailable
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            <div id="offline-actions" style="display: none;">
+                                <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm" style="border-radius: 12px; padding: 12px;">
+                                    <i class="fas fa-check-circle me-2"></i>Confirm Cash Payment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'user_dashboard' %}" class="btn btn-link text-muted text-decoration-none">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("UPI ID copied to clipboard!");
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    function togglePaymentMethod() {
+        const isOnline = document.getElementById('method_online').checked;
+        document.getElementById('online-actions').style.display = isOnline ? 'block' : 'none';
+        document.getElementById('offline-actions').style.display = isOnline ? 'none' : 'block';
+    }
+
+    {% if razorpay_order_id %}
+    document.getElementById('pay-btn').onclick = function (e) {
+        var options = {
+            "key": "{{ razorpay_key }}",
+            "amount": "{{ amount_in_paise }}",
+            "currency": "INR",
+            "name": "UGo Taxi",
+            "description": "Ride #{{ ride.id }} Payment",
+            "order_id": "{{ razorpay_order_id }}",
+            "prefill": {
+                "name": "{{ request.user.get_full_name|default:request.user.username }}",
+                "email": "{{ request.user.email }}",
+                "contact": "{{ request.user.phone_number }}"
+            },
+            "handler": function (response) {
+                // Show full-screen overlay immediately
+                document.getElementById('loading-overlay').style.display = 'flex';
+
+                // Build form data
+                var formData = new FormData();
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                formData.append('payment_method', 'razorpay');
+                formData.append('razorpay_payment_id', response.razorpay_payment_id);
+                formData.append('razorpay_order_id', response.razorpay_order_id);
+                formData.append('razorpay_signature', response.razorpay_signature);
+
+                // POST to the payment view, then redirect to dashboard
+                fetch("{% url 'user_payment' ride.id %}", {
+                    method: 'POST',
+                    body: formData,
+                    redirect: 'follow'
+                })
+                    .then(function (res) {
+                        // Django redirects to dashboard after payment — follow it
+                        window.location.href = "{% url 'user_dashboard' %}";
+                    })
+                    .catch(function (err) {
+                        // Even on error, redirect so user isn't stuck
+                        window.location.href = "{% url 'user_dashboard' %}";
+                    });
+            },
+            "modal": {
+                "ondismiss": function () {
+                    document.getElementById('pay-btn').disabled = false;
+                    document.getElementById('pay-btn').innerHTML =
+                        '<i class="fas fa-lock me-2"></i>Pay Now (Razorpay)';
+                }
+            },
+            "theme": {
+                "color": "#2563EB"
+            }
+        };
+
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            document.getElementById('loading-overlay').style.display = 'none';
+            alert('Payment failed: ' + response.error.description);
+        });
+
+        // Update button to show loading
+        document.getElementById('pay-btn').disabled = true;
+        document.getElementById('pay-btn').innerHTML =
+            '<i class="fas fa-spinner fa-spin me-2"></i>Opening Payment Window...';
+
+        rzp1.open();
+    };
+    {% endif %}
+</script>
+
+<!-- Full-screen loading overlay shown after payment success -->
+<div id="loading-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+     background:rgba(37,99,235,0.92); z-index:9999; flex-direction:column;
+     align-items:center; justify-content:center; color:white;">
+    <i class="fas fa-check-circle fa-4x mb-4" style="animation: pulse 1s infinite;"></i>
+    <h3 class="fw-bold mb-2">Payment Successful! 🎉</h3>
+    <p class="mb-4 opacity-75">Redirecting you to your dashboard...</p>
+    <div class="spinner-border text-white" style="width:2.5rem; height:2.5rem;" role="status"></div>
+</div>
+<style>
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+    }
+</style>
+
+{% endblock %}
